@@ -43,6 +43,23 @@ public class RandomizerHud {
         elapsedTicks = 0f; // Komplett zurücksetzen
     }
 
+    public static void syncFromServer(long serverElapsedTicks, boolean running) {
+        elapsedTicks = serverElapsedTicks; // implizit cast long → float ist ok
+        if (running) {
+            // nur anzeigen, wenn der Timer läuft
+            if (state == HudState.HIDDEN) {
+                state = HudState.RUNNING;
+            }
+        } else {
+            // wenn nicht running: Timer pausiert anzeigen
+            if (elapsedTicks > 0) {
+                state = HudState.PAUSED;
+            } else {
+                state = HudState.HIDDEN;
+            }
+        }
+    }
+
     @SubscribeEvent
     public static void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAboveAll(

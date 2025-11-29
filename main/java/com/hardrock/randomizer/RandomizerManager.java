@@ -1,11 +1,11 @@
 package com.hardrock.randomizer;
 
-import com.hardrock.randomizer.client.RandomizerHud;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
+import com.hardrock.randomizer.network.RandomizerNetwork;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -112,6 +112,11 @@ public class RandomizerManager {
         }
 
         elapsedTicks++;
+
+        if (elapsedTicks % 20 == 0) {
+            boolean running = (state == State.RUNNING);
+            RandomizerNetwork.sendTimerToAllPlayers(elapsedTicks, running);
+        }
 
         tickCounter++;
         if (tickCounter < delayTicks) {
