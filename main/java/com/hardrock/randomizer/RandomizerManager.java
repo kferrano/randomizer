@@ -141,7 +141,7 @@ public class RandomizerManager {
         }
 
         if (resultText != null && !resultText.isEmpty()) {
-            String playerName = target.getGameProfile().getName();
+            String playerName = target.getName().getString();
             Component msg = Component.empty()
                     .append(Randomizer.randomizerPrefix())
                     .append(Component.literal(playerName + " " + resultText));
