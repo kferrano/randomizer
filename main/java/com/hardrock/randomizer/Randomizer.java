@@ -36,6 +36,7 @@ public class Randomizer {
         LOGGER.info("Randomizer mod initializing.");
         NeoForge.EVENT_BUS.addListener(this::onServerTick);
         modContainer.registerConfig(ModConfig.Type.COMMON, RandomizerConfig.COMMON_SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, RandomizerConfig.CLIENT_SPEC);
         NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
     }
 

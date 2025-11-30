@@ -1,6 +1,7 @@
 package com.hardrock.randomizer.client;
 
 import com.hardrock.randomizer.Randomizer;
+import com.hardrock.randomizer.RandomizerConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.DeltaTracker;
@@ -69,13 +70,24 @@ public class RandomizerHud {
     }
 
     private static void render(GuiGraphics gfx, DeltaTracker delta) {
+        Minecraft mc = Minecraft.getInstance();
+
+        if (RandomizerConfig.CLIENT.disableHud.get()) {
+            return;
+        }
+
+        // Wenn keine Welt oder kein Spieler, dann nichts anzeigen
+        if (mc == null || mc.level == null || mc.player == null) {
+            if (state != HudState.HIDDEN || elapsedTicks != 0f) {
+                state = HudState.HIDDEN;
+                elapsedTicks = 0f;
+            }
+            return;
+        }
         // HUD nur anzeigen, wenn nicht komplett versteckt
         if (state == HudState.HIDDEN) {
             return;
         }
-
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return;
 
         // Nur im RUNNING-Zustand weiter hochzählen
         if (state == HudState.RUNNING) {
@@ -90,10 +102,19 @@ public class RandomizerHud {
 
         String text = String.format("Randomizer: %02d:%02d", minutes, seconds);
 
+
+
+        double hudX = RandomizerConfig.CLIENT.hudX.get();
+        double hudY = RandomizerConfig.CLIENT.hudY.get();
+
+        int textWidth = mc.font.width(text);
         int width = gfx.guiWidth();
         int height = gfx.guiHeight();
-        int x = (width - mc.font.width(text)) / 2;
-        int y = height - 40;
+        int hotbarPadding = 40;
+
+        int availableHeight = height - hotbarPadding;
+        int x = (int) (width * hudX - textWidth / 2.0);
+        int y = (int) (availableHeight * hudY);
 
         gfx.drawString(mc.font, text, x, y, 0xFFFFAA00, true);
     }

@@ -80,17 +80,14 @@ public class RandomizerManager {
     }
 
     public String getStatusString() {
-        int secondsTotal = (int) (elapsedTicks / 20);
-        int minutes = secondsTotal / 60;
-        int seconds = secondsTotal % 60;
+        int ticks = (int) elapsedTicks;
+        int seconds = ticks / 20;
+        int minutes = seconds / 60;
+        seconds %= 60;
 
-        int remaining = Math.max(0, delayTicks - tickCounter);
-        int remainingSec = remaining / 20;
+        String time = String.format("%02d:%02d", minutes, seconds);
 
-        return "State: " + state.name()
-                + ", elapsed: " + minutes + "m " + seconds + "s"
-                + ", delay: " + (delayTicks / 20) + "s"
-                + ", next event in ~" + remainingSec + "s";
+        return "State: " + state + ", Time: " + time + ", Delay: " + (delayTicks / 20) + "s";
     }
 
 

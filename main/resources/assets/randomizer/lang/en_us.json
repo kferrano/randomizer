@@ -1,5 +1,88 @@
 {
-  "itemGroup.randomizer": "Example Mod Tab",
-  "block.randomizer.example_block": "Example Block",
-  "item.randomizer.example_item": "Example Item"
+  "randomizer.config.category.general": "General",
+  "randomizer.config.category.general.tooltip": "Core settings for the randomizer (delay, weights, toggles).",
+
+  "randomizer.config.category.content": "Content Filters",
+  "randomizer.config.category.content.tooltip": "Control which items, mobs and effects can be used.",
+
+  "randomizer.config.category.effects": "Effects",
+  "randomizer.config.category.effects.tooltip": "Configure duration and strength of status effects.",
+
+  "randomizer.config.category.mobs": "Mobs",
+  "randomizer.config.category.mobs.tooltip": "Configure mob spawn counts and radius.",
+
+  "randomizer.config.category.hud": "HUD",
+  "randomizer.config.category.hud.tooltip": "Randomizer timer HUD position and visibility.",
+
+  "randomizer.config.hud.disableHud": "Disable HUD",
+  "randomizer.config.hud.disableHud.tooltip": "If enabled, the Randomizer timer will not be displayed.",
+
+  "randomizer.config.hud.hudX": "HUD Horizontal Position",
+  "randomizer.config.hud.hudX.tooltip": "Controls where the timer is displayed horizontally on your screen.",
+
+  "randomizer.config.hud.hudY": "HUD Vertical Position",
+  "randomizer.config.hud.hudY.tooltip": "Controls where the timer is displayed vertically on your screen.",
+
+  "randomizer.config.general.delaySeconds": "Delay Between Events",
+  "randomizer.config.general.delaySeconds.tooltip": "Time in seconds between random events.",
+
+  "randomizer.config.general.enableItems": "Enable Item Events",
+  "randomizer.config.general.enableItems.tooltip": "If enabled, the Randomizer may give random items.",
+
+  "randomizer.config.general.enableEffects": "Enable Effect Events",
+  "randomizer.config.general.enableEffects.tooltip": "If enabled, random potion effects may be applied.",
+
+  "randomizer.config.general.enableMobs": "Enable Mob Events",
+  "randomizer.config.general.enableMobs.tooltip": "If enabled, random mobs can spawn near a player.",
+
+  "randomizer.config.general.weightItems": "Weight: Items",
+  "randomizer.config.general.weightItems.tooltip": "Higher weight increases the chance for item rewards.",
+
+  "randomizer.config.general.weightEffects": "Weight: Effects",
+  "randomizer.config.general.weightEffects.tooltip": "Higher weight increases the chance for effects.",
+
+  "randomizer.config.general.weightMobs": "Weight: Mobs",
+  "randomizer.config.general.weightMobs.tooltip": "Higher weight increases the chance for mob spawns.",
+
+
+  "randomizer.config.content.onlyVanillaItems": "Only Vanilla Items",
+  "randomizer.config.content.onlyVanillaItems.tooltip": "If enabled, only minecraft: items are used.",
+
+  "randomizer.config.content.onlyVanillaMobs": "Only Vanilla Mobs",
+  "randomizer.config.content.onlyVanillaMobs.tooltip": "If enabled, only minecraft: mobs are used.",
+
+  "randomizer.config.content.onlyVanillaEffects": "Only Vanilla Effects",
+  "randomizer.config.content.onlyVanillaEffects.tooltip": "If enabled, only minecraft: potion effects are used.",
+
+  "randomizer.config.content.enableHostileMobs": "Allow Hostile Mobs",
+  "randomizer.config.content.enableHostileMobs.tooltip": "If enabled, monsters like zombies and skeletons can spawn.",
+
+  "randomizer.config.content.enablePassiveMobs": "Allow Passive Mobs",
+  "randomizer.config.content.enablePassiveMobs.tooltip": "If enabled, passive animals can spawn.",
+
+
+  "randomizer.config.mobs.baseHostileMobCount": "Base Hostile Mob Count",
+  "randomizer.config.mobs.baseHostileMobCount.tooltip": "Base amount of hostile mobs per event.",
+
+  "randomizer.config.mobs.basePassiveMobCount": "Base Passive Mob Count",
+  "randomizer.config.mobs.basePassiveMobCount.tooltip": "Base amount of passive mobs per event.",
+
+  "randomizer.config.mobs.baseHostileRadius": "Hostile Spawn Radius",
+  "randomizer.config.mobs.baseHostileRadius.tooltip": "Distance hostile mobs spawn from the player.",
+
+  "randomizer.config.mobs.basePassiveRadius": "Passive Spawn Radius",
+  "randomizer.config.mobs.basePassiveRadius.tooltip": "Distance passive mobs spawn from the player.",
+
+
+  "randomizer.config.effects.durationMinFactor": "Minimum Effect Duration Factor",
+  "randomizer.config.effects.durationMinFactor.tooltip": "Minimum multiplier relative to base duration.",
+
+  "randomizer.config.effects.durationMaxFactor": "Maximum Effect Duration Factor",
+  "randomizer.config.effects.durationMaxFactor.tooltip": "Maximum multiplier relative to base duration.",
+
+  "randomizer.config.effects.maxBuffAmplifier": "Max Buff Amplifier",
+  "randomizer.config.effects.maxBuffAmplifier.tooltip": "Maximum level for beneficial effects.",
+
+  "randomizer.config.effects.maxDebuffAmplifier": "Max Debuff Amplifier",
+  "randomizer.config.effects.maxDebuffAmplifier.tooltip": "Maximum level for harmful effects."
 }
