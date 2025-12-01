@@ -23,6 +23,16 @@
   "randomizer.config.hud.hudY": "HUD Vertical Position",
   "randomizer.config.hud.hudY.tooltip": "Controls where the timer is displayed vertically on your screen.",
 
+  "randomizer.config.category.display": "Display",
+  "randomizer.config.category.display.tooltip": "Visual settings for the HUD and the boss bar.",
+
+  "randomizer.config.display.enableBossbar": "Enable Bossbar",
+  "randomizer.config.display.enableBossbar.tooltip": "Shows a boss bar that fills up until the next random event.",
+
+  "randomizer.config.display.showHudWithBossbar": "Show HUD with Bossbar",
+  "randomizer.config.display.showHudWithBossbar.tooltip": "If disabled, only the boss bar is used and the HUD timer text is hidden.",
+
+
   "randomizer.config.general.delaySeconds": "Delay Between Events",
   "randomizer.config.general.delaySeconds.tooltip": "Time in seconds between random events.",
 

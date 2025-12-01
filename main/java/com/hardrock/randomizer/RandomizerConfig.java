@@ -27,6 +27,10 @@ public class RandomizerConfig {
 
         // Delay
         public final ModConfigSpec.IntValue delaySeconds;
+        public final ModConfigSpec.BooleanValue enableBossbar;
+        public final ModConfigSpec.BooleanValue showHudWithBossbar;
+
+
 
         // Event-Typen
         public final ModConfigSpec.BooleanValue enableEffects;
@@ -234,6 +238,23 @@ public class RandomizerConfig {
                     .translation("randomizer.common.mobs.basePassiveRadius")
                     .comment("Base radius for passive mob spawns around player.")
                     .defineInRange("basePassiveRadius", 5, 1, 64);
+
+            builder.pop();
+
+            builder
+                    .comment("Visual settings for HUD and boss bar.")
+                    .translation("randomizer.config.category.display")
+                    .push("display");
+
+            enableBossbar = builder
+                    .translation("randomizer.config.display.enableBossbar")
+                    .comment("If true, shows a boss bar indicating progress to the next random event. Bossbar mode is experimental and purely cosmetic for now.")
+                    .define("enableBossbar", false);
+
+            showHudWithBossbar = builder
+                    .translation("randomizer.config.display.showHudWithBossbar")
+                    .comment("If true, HUD timer text is shown together with the boss bar. If false, only the boss bar is used.")
+                    .define("showHudWithBossbar", true);
 
             builder.pop();
         }

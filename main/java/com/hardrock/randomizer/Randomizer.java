@@ -30,7 +30,6 @@ public class Randomizer {
     private final RandomizerManager randomizerManager = new RandomizerManager();
 
 
-
     public Randomizer(IEventBus modEventBus, ModContainer modContainer) {
 
         LOGGER.info("Randomizer mod initializing.");
@@ -74,21 +73,50 @@ public class Randomizer {
                 .requires(source -> source.hasPermission(2)) // OP-Level 2
                 .then(Commands.literal("start")
                         .executes(ctx -> {
+                            RandomizerManager.State state = randomizerManager.getState();
+                            if (state == RandomizerManager.State.RUNNING) {
+                                ctx.getSource().sendFailure(
+                                        Component.empty()
+                                                .append(Randomizer.randomizerPrefix())
+                                                .append(Component.literal("is already running."))
+                                );
+                                return 0;
+                            }
                             randomizerManager.start();
                             RandomizerNetwork.sendHudActionToAllPlayers(RandomizerHudPayload.Action.START);
                             broadcastToAll(ctx.getSource(), "Randomizer started.");
                             return 1;
                         }))
+
+
                 .then(Commands.literal("pause")
                         .executes(ctx -> {
+                            RandomizerManager.State state = randomizerManager.getState();
+                            if (state != RandomizerManager.State.RUNNING) {
+                                ctx.getSource().sendFailure(
+                                        Component.empty()
+                                                .append(Randomizer.randomizerPrefix())
+                                                .append(Component.literal("cannot be paused because it is not running."))
+                                );
+                                return 0;
+                            }
                             randomizerManager.pause();
                             RandomizerNetwork.sendHudActionToAllPlayers(RandomizerHudPayload.Action.PAUSE);
                             broadcastToAll(ctx.getSource(), "Randomizer paused.");
-
                             return 1;
                         }))
+
                 .then(Commands.literal("stop")
                         .executes(ctx -> {
+                            RandomizerManager.State state = randomizerManager.getState();
+                            if (state == RandomizerManager.State.STOPPED) {
+                                ctx.getSource().sendFailure(
+                                        Component.empty()
+                                                .append(Randomizer.randomizerPrefix())
+                                                .append(Component.literal("is already stopped."))
+                                );
+                                return 0;
+                            }
                             randomizerManager.stop();
                             RandomizerNetwork.sendHudActionToAllPlayers(RandomizerHudPayload.Action.STOP);
                             broadcastToAll(ctx.getSource(), "Randomizer stopped and timer reset.");

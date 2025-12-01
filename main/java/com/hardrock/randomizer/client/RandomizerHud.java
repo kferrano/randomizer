@@ -76,6 +76,12 @@ public class RandomizerHud {
             return;
         }
 
+        // Wenn du möchtest: HUD aus, wenn Bossbar aktiv und Config sagt "nur Bossbar"
+        if (RandomizerConfig.COMMON.enableBossbar.get()
+                && !RandomizerConfig.COMMON.showHudWithBossbar.get()) {
+            return;
+        }
+
         // Wenn keine Welt oder kein Spieler, dann nichts anzeigen
         if (mc == null || mc.level == null || mc.player == null) {
             if (state != HudState.HIDDEN || elapsedTicks != 0f) {

@@ -6,11 +6,15 @@ import net.minecraft.server.level.ServerPlayer;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 import com.hardrock.randomizer.network.RandomizerNetwork;
+import net.minecraft.world.BossEvent;
+import net.minecraft.server.level.ServerBossEvent;
+
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
 
+import java.util.List;
 import java.util.Random;
 
 public class RandomizerManager {
@@ -28,6 +32,7 @@ public class RandomizerManager {
     private State state = State.STOPPED;
     private int tickCounter = 0;
     private long elapsedTicks = 0;
+    private final ServerBossEvent bossBar;
 
 
     public enum State {
@@ -36,38 +41,75 @@ public class RandomizerManager {
         STOPPED
     }
 
-    public RandomizerManager() {
+    public static RandomizerManager INSTANCE;
 
+    public RandomizerManager() {
+        INSTANCE = this;
+        this.bossBar = new ServerBossEvent(
+                Component.literal("Randomizer"),
+                BossEvent.BossBarColor.BLUE,
+                BossEvent.BossBarOverlay.PROGRESS
+        );
+        this.bossBar.setVisible(false);
+    }
+
+    public int getTickCounter() {
+        return tickCounter;
+    }
+
+    public int getDelayTicks() {
+        return delayTicks;
+    }
+
+    private void updateBossbarPlayers(MinecraftServer server) {
+        bossBar.removeAllPlayers();
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            bossBar.addPlayer(player);
+        }
     }
 
     public void updateDelayFromConfig() {
         int seconds = RandomizerConfig.COMMON.delaySeconds.get();
-        if (seconds < 1) seconds = 1;
+        if (seconds < 5) seconds = 5;
+        if (seconds > 3600) seconds = 3600;
         this.delayTicks = seconds * 20;
     }
 
     public void start() {
         if (state == State.RUNNING) {
-            LOGGER.debug("RandomizerManager.start() called, but already RUNNING.");
             return;
         }
+        if (state == State.STOPPED) {
+            tickCounter = 0;
+        }
         state = State.RUNNING;
-        tickCounter = 0;
+        if (RandomizerConfig.COMMON.enableBossbar.get()) {
+            bossBar.setVisible(true);
+        }
         LOGGER.info("Randomizer started. Delay: {} seconds", delayTicks / 20);
     }
 
     public void pause() {
-        if (state == State.RUNNING) {
-            state = State.PAUSED;
-            LOGGER.info("Randomizer paused at {} ticks elapsed.", elapsedTicks);
-
+        if (state != State.RUNNING) {
+            return;
+        }
+        state = State.PAUSED;
+        if (RandomizerConfig.COMMON.enableBossbar.get()) {
+            bossBar.setVisible(false);
         }
     }
 
     public void stop() {
+        if (state == State.STOPPED) {
+            return;
+        }
         state = State.STOPPED;
         tickCounter = 0;
-        elapsedTicks = 0;
+        if (RandomizerConfig.COMMON.enableBossbar.get()) {
+            bossBar.setVisible(false);
+            bossBar.setProgress(0.0f);
+            bossBar.removeAllPlayers();
+        }
         LOGGER.info("Randomizer stopped and timer reset.");
     }
 
@@ -90,7 +132,6 @@ public class RandomizerManager {
         return "State: " + state + ", Time: " + time + ", Delay: " + (delayTicks / 20) + "s";
     }
 
-
     public static Component randomizerPrefix() {
         return Component.literal("[Randomizer] ")
                 .withStyle(ChatFormatting.GOLD);
@@ -103,64 +144,97 @@ public class RandomizerManager {
             updateDelayFromConfig();
             delayInitialized = true;
         }
-        // Nur SERVER-Ticks und nur wenn wir laufen
+
+        // Wenn nicht RUNNING → Bossbar verstecken und raus
         if (state != State.RUNNING) {
+            if (RandomizerConfig.COMMON.enableBossbar.get()) {
+                bossBar.setVisible(false);
+                bossBar.setProgress(0f);
+                bossBar.removeAllPlayers();
+            }
             return;
         }
 
-        elapsedTicks++;
+        // ========== RUNNING ==========
 
-        if (elapsedTicks % 20 == 0) {
-            boolean running = (state == State.RUNNING);
-            RandomizerNetwork.sendTimerToAllPlayers(elapsedTicks, running);
+        // Bossbar: TickCounter zeigt Fortschritt
+        if (RandomizerConfig.COMMON.enableBossbar.get()) {
+            bossBar.removeAllPlayers();
+            for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+                bossBar.addPlayer(p);
+            }
+
+            float progress = tickCounter / (float) delayTicks;
+            if (progress < 0f) progress = 0f;
+            if (progress > 1f) progress = 1f;
+
+            bossBar.setVisible(true);
+            bossBar.setProgress(progress);
+
+            if (progress < 0.5f) bossBar.setColor(BossEvent.BossBarColor.GREEN);
+            else if (progress < 0.8f) bossBar.setColor(BossEvent.BossBarColor.YELLOW);
+            else bossBar.setColor(BossEvent.BossBarColor.RED);
         }
 
+        // ========== TickCounter hochzählen ==========
         tickCounter++;
-        if (tickCounter < delayTicks) {
-            return;
-        }
 
+        // Noch nicht genug Zeit für ein Event
+        if (tickCounter < delayTicks) return;
+
+        // Genau jetzt: Event!
         tickCounter = 0;
 
-        // Spieler einsammeln (z.B. alle online)
-        var players = server.getPlayerList().getPlayers();
-        if (players.isEmpty()) {
-            return;
-        }
+        List<ServerPlayer> players = server.getPlayerList().getPlayers();
+        if (players.isEmpty()) return;
 
-        // Einen zufälligen Spieler auswählen (oder alle, wenn du willst)
         ServerPlayer target = players.get(random.nextInt(players.size()));
+        if (target == null || !target.isAlive() || target.isRemoved()) return;
 
         RandomPools.EventType type = pools.chooseEventType(random);
         if (type == null) return;
 
         String resultText = null;
-
-        switch (type) {
-            case EFFECT -> resultText = pools.applyRandomEffect(target, random);
-            case MOB -> resultText = pools.spawnRandomMob(target, random);
-            case ITEM -> resultText = pools.giveRandomItem(target, random);
-        }
-
-        if (resultText != null && !resultText.isEmpty()) {
-            String playerName = target.getName().getString();
-            Component msg = Component.empty()
-                    .append(Randomizer.randomizerPrefix())
-                    .append(Component.literal(playerName + " " + resultText));
-
-            for (ServerPlayer p : players) {
-                p.sendSystemMessage(msg);
+        try {
+            switch (type) {
+                case EFFECT -> resultText = pools.applyRandomEffect(target, random);
+                case MOB    -> resultText = pools.spawnRandomMob(target, random);
+                case ITEM   -> resultText = pools.giveRandomItem(target, random);
             }
-            LOGGER.info(
-                    "Randomizer event: type={}, target={}, info={}",
-                    type, playerName, resultText
-            );
+        } catch (Exception e) {
+            LOGGER.error("Randomizer event failed: {}", e.getMessage(), e);
+            return;
         }
+
+        if (resultText == null || resultText.isEmpty()) return;
+        final String text = resultText;
+
+        Component icon = switch (type) {
+            case ITEM -> Component.literal("[Item] ").withStyle(ChatFormatting.GOLD);
+            case EFFECT -> Component.literal("[Effect] ").withStyle(ChatFormatting.LIGHT_PURPLE);
+            case MOB -> Component.literal("[Mob] ").withStyle(ChatFormatting.RED);
+            default -> Component.empty();
+        };
+
+        Component msg = Component.empty()
+                .append(Randomizer.randomizerPrefix())
+                .append(icon)
+                .append(Component.literal("Player "))
+                .append(target.getDisplayName().copy().withStyle(ChatFormatting.AQUA))
+                .append(Component.literal(" "))
+                .append(Component.literal(text));
+
+        for (ServerPlayer p : players) {
+            p.sendSystemMessage(msg);
+        }
+
+        LOGGER.info(
+                "Randomizer event triggered: type={}, player={}, info={}",
+                type, target.getName().getString(), text
+        );
     }
 
 
-    // später: hier Wheel-Packet für GUI schicken
-    // RandomEventResult eventResult = new RandomEventResult(type, resultText);
 }
 
 
