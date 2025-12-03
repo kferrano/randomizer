@@ -3,10 +3,7 @@ name: Sync all source files to a single Gist
 on:
   push:
     branches:
-      - main
       - master
-      - 1.21*
-      - 1.20*
       # ggf. weitere Branches ergänzen
 
 jobs:
@@ -77,7 +74,8 @@ jobs:
           while IFS= read -r file; do
             [ -z "$file" ] && continue
 
-            gist_name="$file"
+            # Gist-Dateiname: Pfade durch "__" ersetzen (Gist kann keine Ordner)
+            gist_name=$(echo "$file" | sed 's|/|__|g')
             echo "Sync Datei: $file -> $gist_name"
 
             content=$(cat "$file")
@@ -121,7 +119,7 @@ jobs:
               exit 1
             fi
 
-            # Kleine Pause zwischen Dateien schadet auch nicht
+            # Kleine Pause zwischen Dateien
             sleep 1
 
           done < repo_files.txt
@@ -135,8 +133,8 @@ jobs:
 
           [ ! -f existing_gist_files.txt ] && exit 0
 
-          # Neue Gist-Dateinamen = exakt die Pfade aus dem Repo
-          cp repo_files.txt new_gist_files.txt || touch new_gist_files.txt
+          # Neue Gist-Dateinamen = gleiche Transformation wie oben: "/" -> "__"
+          sed 's|/|__|g' repo_files.txt > new_gist_files.txt || touch new_gist_files.txt
 
           echo "Neue Gist-Dateinamen (aus Repo abgeleitet):"
           cat new_gist_files.txt || echo "Keine neuen Dateien."
