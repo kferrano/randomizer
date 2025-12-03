@@ -48,6 +48,18 @@ jobs:
 
           echo "Dateien, die aktuell im Gist sind:"
           cat existing_gist_files.txt || echo "Keine Dateien im Gist."
+      - name: Check token length
+        env:
+          GH_TOKEN: ${{ secrets.GIST_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "GH_TOKEN ist LEER – Secret GIST_TOKEN ist nicht gesetzt oder Name falsch."
+            exit 1
+          fi
+          echo "GH_TOKEN Länge: ${#GH_TOKEN}"
+
+
+
 
       - name: Update or create files in Gist
         env:
