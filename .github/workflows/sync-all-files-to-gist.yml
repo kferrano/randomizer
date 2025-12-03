@@ -58,11 +58,11 @@ jobs:
           fi
           echo "GH_TOKEN Länge: ${#GH_TOKEN}"
 
-      - name: Update or create files in Gist
-        env:
+            - name: Update or create files in Gist
+            env:
           GIST_ID: 3031e418dacabb4f9a25206969b4a483
           GH_TOKEN: ${{ secrets.GIST_TOKEN }}
-        run: |
+          run: |
           set -e
 
           if [ ! -s repo_files.txt ]; then
@@ -76,10 +76,8 @@ jobs:
             gist_name="$file"
             echo "Sync Datei: $file -> $gist_name"
 
-
             content=$(cat "$file")
 
-            # JSON für genau diese eine Datei bauen
             jq -n --arg name "$gist_name" --arg content "$content" \
               '{files: {($name): {content: $content}}}' > body.json
 
@@ -107,35 +105,29 @@ jobs:
                 continue
               fi
 
-              # bei allem anderen aus der Retry-Schleife raus
               break
             done
 
-            # wenn nach allen Versuchen immer noch kein Erfolg → Fehler
             if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
               echo "Fehler beim Aktualisieren von $gist_name nach $max_attempts Versuchen:"
               cat response.json
               exit 1
             fi
 
-            # kleine Pause zwischen Dateien schadet auch nicht
             sleep 1
 
           done < repo_files.txt
 
 
-      - name: Delete files that no longer exist in repo
+            - name: Delete files that no longer exist in repo
         env:
           GIST_ID: 3031e418dacabb4f9a25206969b4a483
           GH_TOKEN: ${{ secrets.GIST_TOKEN }}
         run: |
           set -e
 
-          # Wenn keine existing- oder repo-Liste da ist, raus
           [ ! -f existing_gist_files.txt ] && exit 0
 
-          # Liste der Gist-Dateien, die wir behalten (aus Repo)
-          # Gleiche Transformation wie oben: / -> __
           cp repo_files.txt new_gist_files.txt || touch new_gist_files.txt
 
           echo "Neue Gist-Dateinamen (aus Repo abgeleitet):"
@@ -144,7 +136,6 @@ jobs:
           while IFS= read -r old_name; do
             [ -z "$old_name" ] && continue
 
-            # Wenn old_name NICHT in new_gist_files.txt vorkommt → löschen
             if ! grep -qx "$old_name" new_gist_files.txt 2>/dev/null; then
               echo "Lösche aus Gist (nicht mehr im Repo): $old_name"
 
@@ -155,6 +146,7 @@ jobs:
                 -X PATCH \
                 -H "Authorization: Bearer $GH_TOKEN" \
                 -H "Accept: application/vnd.github+json" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
                 "https://api.github.com/gists/$GIST_ID" \
                 -d @body_delete.json)
 
