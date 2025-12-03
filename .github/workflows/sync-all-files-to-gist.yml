@@ -3,8 +3,11 @@ name: Sync all source files to a single Gist
 on:
   push:
     branches:
+      - main
       - master
-      # weitere Branches nach Bedarf
+      - 1.21*
+      - 1.20*
+      # ggf. weitere Branches ergänzen
 
 jobs:
   sync-to-gist:
@@ -18,7 +21,6 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Collect repo files
-        id: collect
         run: |
           set -e
           # Alle Dateien, die wir ins Gist spiegeln wollen:
@@ -34,20 +36,22 @@ jobs:
           cat repo_files.txt || echo "Keine Dateien gefunden."
 
       - name: Read existing Gist files
-        id: existing
         env:
           GIST_ID: 3031e418dacabb4f9a25206969b4a483
           GH_TOKEN: ${{ secrets.GIST_TOKEN }}
         run: |
           set -e
           # Liste der vorhandenen Dateien im Gist holen (kann leer sein)
-          curl -s -H "Authorization: Bearer $GH_TOKEN" \
-               -H "Accept: application/vnd.github+json" \
-               "https://api.github.com/gists/$GIST_ID" \
+          curl -s \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/gists/$GIST_ID" \
             | jq -r '.files | keys[]?' > existing_gist_files.txt || echo "" > existing_gist_files.txt
 
           echo "Dateien, die aktuell im Gist sind:"
           cat existing_gist_files.txt || echo "Keine Dateien im Gist."
+
       - name: Check token length
         env:
           GH_TOKEN: ${{ secrets.GIST_TOKEN }}
@@ -58,11 +62,11 @@ jobs:
           fi
           echo "GH_TOKEN Länge: ${#GH_TOKEN}"
 
-            - name: Update or create files in Gist
-            env:
+      - name: Update or create files in Gist
+        env:
           GIST_ID: 3031e418dacabb4f9a25206969b4a483
           GH_TOKEN: ${{ secrets.GIST_TOKEN }}
-          run: |
+        run: |
           set -e
 
           if [ ! -s repo_files.txt ]; then
@@ -78,6 +82,7 @@ jobs:
 
             content=$(cat "$file")
 
+            # JSON für genau diese eine Datei bauen
             jq -n --arg name "$gist_name" --arg content "$content" \
               '{files: {($name): {content: $content}}}' > body.json
 
@@ -105,19 +110,21 @@ jobs:
                 continue
               fi
 
+              # Bei allem anderen aus der Retry-Schleife raus
               break
             done
 
+            # Wenn nach allen Versuchen immer noch kein Erfolg → Fehler
             if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
               echo "Fehler beim Aktualisieren von $gist_name nach $max_attempts Versuchen:"
               cat response.json
               exit 1
             fi
 
+            # Kleine Pause zwischen Dateien schadet auch nicht
             sleep 1
 
           done < repo_files.txt
-
 
       - name: Delete files that no longer exist in repo
         env:
@@ -128,6 +135,7 @@ jobs:
 
           [ ! -f existing_gist_files.txt ] && exit 0
 
+          # Neue Gist-Dateinamen = exakt die Pfade aus dem Repo
           cp repo_files.txt new_gist_files.txt || touch new_gist_files.txt
 
           echo "Neue Gist-Dateinamen (aus Repo abgeleitet):"
@@ -136,6 +144,7 @@ jobs:
           while IFS= read -r old_name; do
             [ -z "$old_name" ] && continue
 
+            # Wenn old_name NICHT in new_gist_files.txt vorkommt → löschen
             if ! grep -qx "$old_name" new_gist_files.txt 2>/dev/null; then
               echo "Lösche aus Gist (nicht mehr im Repo): $old_name"
 
