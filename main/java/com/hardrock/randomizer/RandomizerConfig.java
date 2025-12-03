@@ -31,7 +31,6 @@ public class RandomizerConfig {
         public final ModConfigSpec.BooleanValue showHudWithBossbar;
 
 
-
         // Event-Typen
         public final ModConfigSpec.BooleanValue enableEffects;
         public final ModConfigSpec.BooleanValue enableMobs;
@@ -72,6 +71,9 @@ public class RandomizerConfig {
         public final ModConfigSpec.IntValue baseHostileRadius;
         public final ModConfigSpec.IntValue basePassiveRadius;
 
+
+        // Admin-Modus
+        public final ModConfigSpec.BooleanValue allowManualWhenStopped;
 
         public Common(ModConfigSpec.Builder builder) {
 
@@ -255,6 +257,14 @@ public class RandomizerConfig {
                     .translation("randomizer.config.display.showHudWithBossbar")
                     .comment("If true, HUD timer text is shown together with the boss bar. If false, only the boss bar is used.")
                     .define("showHudWithBossbar", true);
+
+            builder.pop();
+
+            builder
+                    .push("admin");
+
+            allowManualWhenStopped = builder
+                    .define("allowManualWhenStopped", true);
 
             builder.pop();
         }

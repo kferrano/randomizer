@@ -21,6 +21,11 @@ import org.slf4j.Logger;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.server.level.ServerPlayer;
+
+import java.util.Collection;
+
 
 @Mod(Randomizer.MOD_ID)
 public class Randomizer {
@@ -28,9 +33,11 @@ public class Randomizer {
     public static final String MOD_ID = "randomizer";
     private static final Logger LOGGER = LogUtils.getLogger();
     private final RandomizerManager randomizerManager = new RandomizerManager();
+    public static RandomizerManager MANAGER;
 
 
     public Randomizer(IEventBus modEventBus, ModContainer modContainer) {
+        MANAGER = new RandomizerManager();
 
         LOGGER.info("Randomizer mod initializing.");
         NeoForge.EVENT_BUS.addListener(this::onServerTick);
@@ -87,8 +94,6 @@ public class Randomizer {
                             broadcastToAll(ctx.getSource(), "Randomizer started.");
                             return 1;
                         }))
-
-
                 .then(Commands.literal("pause")
                         .executes(ctx -> {
                             RandomizerManager.State state = randomizerManager.getState();
@@ -135,8 +140,74 @@ public class Randomizer {
 
                             return 1;
                         }))
-        );
 
+                .then(Commands.literal("manual")
+                        // /randomizer manual -> self
+                        .executes(ctx -> {
+                            ServerPlayer self = ctx.getSource().getPlayerOrException();
+                            Randomizer.MANAGER.triggerManualEventForPlayer(self);
+
+                            ctx.getSource().sendSuccess(
+                                    () -> Component.empty()
+                                            .append(Randomizer.randomizerPrefix())
+                                            .append(Component.literal("Triggered a manual event for you.")),
+                                    false
+                            );
+                            return 1;
+                        })
+                        // /randomizer manual <targets> -> Name, @a, @p, etc.
+                        .then(Commands.argument("targets", EntityArgument.players())
+                                .executes(ctx -> {
+                                    Collection<ServerPlayer> targets;
+                                    try {
+                                        targets = EntityArgument.getPlayers(ctx, "targets");
+                                    } catch (Exception e) {
+                                        ctx.getSource().sendFailure(
+                                                Component.empty()
+                                                        .append(Randomizer.randomizerPrefix())
+                                                        .append(Component.literal("No valid player targets found."))
+                                        );
+                                        return 0;
+                                    }
+
+                                    if (targets.isEmpty()) {
+                                        ctx.getSource().sendFailure(
+                                                Component.empty()
+                                                        .append(Randomizer.randomizerPrefix())
+                                                        .append(Component.literal("No players matched the given selector."))
+                                        );
+                                        return 0;
+                                    }
+
+                                    int count = 0;
+                                    for (ServerPlayer p : targets) {
+                                        try {
+                                            Randomizer.MANAGER.triggerManualEventForPlayer(p);
+                                            count++;
+                                        } catch (Exception e) {
+                                            LOGGER.error("Manual event failed for player {}", p.getName().getString(), e);
+                                            ctx.getSource().sendFailure(
+                                                    Component.empty()
+                                                            .append(Randomizer.randomizerPrefix())
+                                                            .append(Component.literal("Manual event failed for " + p.getName().getString()))
+                                            );
+                                        }
+                                    }
+
+                                    final int resultCount = count;
+
+                                    ctx.getSource().sendSuccess(
+                                            () -> Component.empty()
+                                                    .append(Randomizer.randomizerPrefix())
+                                                    .append(Component.literal("Triggered manual events for " + resultCount + " player(s).")),
+                                            false
+                                    );
+
+                                    return resultCount;
+                                })
+                        )
+                )
+        );
     }
 
     public static Component randomizerPrefix() {

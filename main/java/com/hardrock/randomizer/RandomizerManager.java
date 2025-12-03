@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import com.hardrock.randomizer.network.RandomizerNetwork;
 import net.minecraft.world.BossEvent;
 import net.minecraft.server.level.ServerBossEvent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.MinecraftServer;
 
 
 import net.minecraft.ChatFormatting;
@@ -198,8 +200,8 @@ public class RandomizerManager {
         try {
             switch (type) {
                 case EFFECT -> resultText = pools.applyRandomEffect(target, random);
-                case MOB    -> resultText = pools.spawnRandomMob(target, random);
-                case ITEM   -> resultText = pools.giveRandomItem(target, random);
+                case MOB -> resultText = pools.spawnRandomMob(target, random);
+                case ITEM -> resultText = pools.giveRandomItem(target, random);
             }
         } catch (Exception e) {
             LOGGER.error("Randomizer event failed: {}", e.getMessage(), e);
@@ -234,6 +236,72 @@ public class RandomizerManager {
         );
     }
 
+    public void triggerManualEventForPlayer(ServerPlayer target) {
+        MinecraftServer server = ((ServerLevel) target.level()).getServer(); // <-- FIX HIER
+
+        if (server == null) {
+            LOGGER.warn("Manual event aborted: server was null for player {}", target.getName().getString());
+            return;
+        }
+
+        List<ServerPlayer> players = server.getPlayerList().getPlayers();
+        if (players.isEmpty()) {
+            LOGGER.warn("Manual event aborted: no players online.");
+            return;
+        }
+
+        RandomPools.EventType type = pools.chooseEventType(random);
+        if (type == null) {
+            LOGGER.warn("Manual event aborted: no event type available.");
+            return;
+        }
+
+        String resultText = null;
+
+        try {
+            switch (type) {
+                case EFFECT -> resultText = pools.applyRandomEffect(target, random);
+                case MOB -> resultText = pools.spawnRandomMob(target, random);
+                case ITEM -> resultText = pools.giveRandomItem(target, random);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Manual event failed: type={}, target={}",
+                    type, target.getName().getString(), e);
+            return;
+        }
+
+        if (resultText == null || resultText.isEmpty()) {
+            LOGGER.warn("Manual event produced empty result for {}", target.getName().getString());
+            return;
+        }
+
+        final String text = resultText;
+
+        Component icon = switch (type) {
+            case ITEM -> Component.literal("[Item] ").withStyle(ChatFormatting.GOLD);
+            case EFFECT -> Component.literal("[Effect] ").withStyle(ChatFormatting.LIGHT_PURPLE);
+            case MOB -> Component.literal("[Mob] ").withStyle(ChatFormatting.RED);
+            default -> Component.empty();
+        };
+
+        Component msg = Component.empty()
+                .append(Randomizer.randomizerPrefix())
+                .append(Component.literal("[Manual] ").withStyle(ChatFormatting.GRAY))
+                .append(icon)
+                .append(Component.literal("Player "))
+                .append(target.getDisplayName().copy().withStyle(ChatFormatting.AQUA))
+                .append(Component.literal(" "))
+                .append(Component.literal(text));
+
+        for (ServerPlayer p : players) {
+            p.sendSystemMessage(msg);
+        }
+
+        LOGGER.info(
+                "Manual randomizer event: type={}, target={}, info={}",
+                type, target.getName().getString(), text
+        );
+    }
 
 }
 

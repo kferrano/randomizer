@@ -34,7 +34,7 @@ public class RandomizerClientPayloadHandler {
         switch (payload.action()) {
             case START -> RandomizerHud.startOrResume();
             case PAUSE -> RandomizerHud.pause();
-            case STOP  -> RandomizerHud.stop();
+            case STOP -> RandomizerHud.stop();
         }
     }
 

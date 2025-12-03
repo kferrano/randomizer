@@ -109,7 +109,6 @@ public class RandomizerHud {
         String text = String.format("Randomizer: %02d:%02d", minutes, seconds);
 
 
-
         double hudX = RandomizerConfig.CLIENT.hudX.get();
         double hudY = RandomizerConfig.CLIENT.hudY.get();
 

@@ -19,7 +19,6 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.MobCategory;
 
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -201,8 +200,6 @@ public class RandomPools {
     }
 
 
-
-
     // =====================================================================================
     // Event-Typ Auswahl
     // =====================================================================================
@@ -210,13 +207,13 @@ public class RandomPools {
     public EventType chooseEventType(Random random) {
         ensureInitialized();
 
-        boolean effEnabled  = RandomizerConfig.COMMON.enableEffects.get() && !effects.isEmpty();
-        boolean mobsEnabled = RandomizerConfig.COMMON.enableMobs.get()    && !mobs.isEmpty();
-        boolean itemEnabled = RandomizerConfig.COMMON.enableItems.get()   && !items.isEmpty();
+        boolean effEnabled = RandomizerConfig.COMMON.enableEffects.get() && !effects.isEmpty();
+        boolean mobsEnabled = RandomizerConfig.COMMON.enableMobs.get() && !mobs.isEmpty();
+        boolean itemEnabled = RandomizerConfig.COMMON.enableItems.get() && !items.isEmpty();
 
-        int weightEffect = effEnabled  ? RandomizerConfig.COMMON.weightEffects.get() : 0;
-        int weightMob    = mobsEnabled ? RandomizerConfig.COMMON.weightMobs.get()    : 0;
-        int weightItem   = itemEnabled ? RandomizerConfig.COMMON.weightItems.get()   : 0;
+        int weightEffect = effEnabled ? RandomizerConfig.COMMON.weightEffects.get() : 0;
+        int weightMob = mobsEnabled ? RandomizerConfig.COMMON.weightMobs.get() : 0;
+        int weightItem = itemEnabled ? RandomizerConfig.COMMON.weightItems.get() : 0;
 
         int total = weightEffect + weightMob + weightItem;
         if (total <= 0) return null;
@@ -285,8 +282,6 @@ public class RandomPools {
 
         return "received " + effectName + " " + level + " for " + seconds + "s";
     }
-
-
 
 
     private EffectEntry weightedEffect(Random random) {
@@ -403,7 +398,7 @@ public class RandomPools {
         }
 
         // Basis aus deinem Pool (16 / 8 / 1)
-       int count;
+        int count;
         if (maxStack == 1) {
             count = 1;
         } else {
