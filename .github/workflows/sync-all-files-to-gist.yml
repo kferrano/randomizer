@@ -73,8 +73,9 @@ jobs:
           while IFS= read -r file; do
             [ -z "$file" ] && continue
 
-            gist_name=$(echo "$file" | sed 's|/|__|g')
+            gist_name="$file"
             echo "Sync Datei: $file -> $gist_name"
+
 
             content=$(cat "$file")
 
@@ -135,7 +136,7 @@ jobs:
 
           # Liste der Gist-Dateien, die wir behalten (aus Repo)
           # Gleiche Transformation wie oben: / -> __
-          sed 's|/|__|g' repo_files.txt > new_gist_files.txt || touch new_gist_files.txt
+          cp repo_files.txt new_gist_files.txt || touch new_gist_files.txt
 
           echo "Neue Gist-Dateinamen (aus Repo abgeleitet):"
           cat new_gist_files.txt || echo "Keine neuen Dateien."
