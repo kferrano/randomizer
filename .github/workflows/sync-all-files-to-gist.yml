@@ -3,10 +3,7 @@ name: Sync all source files to a single Gist
 on:
   push:
     branches:
-      - main
       - master
-      - 1.21*
-      - 1.20*
       # weitere Branches nach Bedarf
 
 jobs:
