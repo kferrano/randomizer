@@ -60,7 +60,7 @@ jobs:
 
       - name: Update or create files in Gist
         env:
-          GIST_ID: 9bde9e234886c94d0c2c03757b0bb3d1
+          GIST_ID: 3031e418dacabb4f9a25206969b4a483
           GH_TOKEN: ${{ secrets.GIST_TOKEN }}
         run: |
           set -e
