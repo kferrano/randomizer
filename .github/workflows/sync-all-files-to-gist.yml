@@ -14,16 +14,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Prepare file list and content
-        id: prepare
-        env:
-          GIST_ID: 9bde9e234886c94d0c2c03757b0bb3d1   # <--- HIER deine echte Gist-ID rein
-          GH_TOKEN: ${{ secrets.GIST_TOKEN }}
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Collect repo files
+        id: collect
         run: |
           set -e
-
-          # 1) Alle relevanten Dateien im Repo einsammeln
-          #    Aktuell: Java + typische Text/Config-Dateien
+          # Alle Dateien, die wir ins Gist spiegeln wollen:
           find src -type f \( \
               -name '*.java' \
               -o -name '*.json' \
@@ -32,62 +30,106 @@ jobs:
               -o -name '*.lang' \
             \) > repo_files.txt
 
-          # Liste der Gist-Dateinamen, die neu/aktuell sein sollen
-          : > new_gist_files.txt
+          echo "Gefundene Dateien:"
+          cat repo_files.txt || echo "Keine Dateien gefunden."
 
-          # JSON-Beginn
-          echo '{ "files": {' > payload.json
-
-          first=true
-
-          # 2) Für jede Repo-Datei einen Eintrag im Gist erzeugen/aktualisieren
-          while IFS= read -r file; do
-            # Gist-Dateiname: Pfade durch "__" ersetzen
-            gist_name=$(echo "$file" | sed 's|/|__|g')
-            echo "$gist_name" >> new_gist_files.txt
-
-            content=$(jq -Rs . < "$file")
-
-            if [ "$first" = true ]; then
-              first=false
-            else
-              echo ',' >> payload.json
-            fi
-
-            # Datei-Inhalt setzen/aktualisieren
-            printf '"%s": { "content": %s }' "$gist_name" >> payload.json
-          done < repo_files.txt
-
-          # 3) Existierende Gist-Dateien holen
-          curl -H "Authorization: Bearer $GH_TOKEN" \
-               -H "Accept: application/vnd.github+json" \
-               "https://api.github.com/gists/$GIST_ID" \
-            | jq -r '.files | keys[]' > existing_gist_files.txt
-
-          # 4) Alles, was im Gist existiert, aber nicht mehr im Repo → löschen (null)
-          while IFS= read -r old_name; do
-            if ! grep -qx "$old_name" new_gist_files.txt; then
-              if [ "$first" = true ]; then
-                first=false
-              else
-                echo ',' >> payload.json
-              fi
-
-              # Datei im Gist löschen
-              printf '"%s": null' "$old_name" >> payload.json
-            fi
-          done < existing_gist_files.txt
-
-          # 5) JSON-Ende
-          echo '} }' >> payload.json
-
-      - name: Update Gist
+      - name: Read existing Gist files
+        id: existing
         env:
-          GIST_ID:   9bde9e234886c94d0c2c03757b0bb3d1 # <--- dieselbe Gist-ID wie oben
+          GIST_ID: 9bde9e234886c94d0c2c03757b0bb3d1
           GH_TOKEN: ${{ secrets.GIST_TOKEN }}
         run: |
-          curl -X PATCH \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/gists/$GIST_ID" \
-            -d @payload.json
+          set -e
+          # Liste der vorhandenen Dateien im Gist holen (kann leer sein)
+          curl -s -H "Authorization: Bearer $GH_TOKEN" \
+               -H "Accept: application/vnd.github+json" \
+               "https://api.github.com/gists/$GIST_ID" \
+            | jq -r '.files | keys[]?' > existing_gist_files.txt || echo "" > existing_gist_files.txt
+
+          echo "Dateien, die aktuell im Gist sind:"
+          cat existing_gist_files.txt || echo "Keine Dateien im Gist."
+
+      - name: Update or create files in Gist
+        env:
+          GIST_ID: 9bde9e234886c94d0c2c03757b0bb3d1
+          GH_TOKEN: ${{ secrets.GIST_TOKEN }}
+        run: |
+          set -e
+
+          if [ ! -s repo_files.txt ]; then
+            echo "Keine Repo-Dateien gefunden, überspringe Update-Schritt."
+            exit 0
+          fi
+
+          # Für jede Datei im Repo: einzeln JSON bauen und PATCH schicken
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+
+            gist_name=$(echo "$file" | sed 's|/|__|g')
+
+            echo "Sync Datei: $file -> $gist_name"
+
+            content=$(cat "$file")
+
+            # JSON sauber mit jq bauen
+            jq -n --arg name "$gist_name" --arg content "$content" \
+              '{files: {($name): {content: $content}}}' > body.json
+
+            HTTP_CODE=$(curl -s -o response.json -w "%{http_code}" \
+              -X PATCH \
+              -H "Authorization: Bearer '"$GH_TOKEN"'" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/gists/$GIST_ID" \
+              -d @body.json)
+
+            echo "HTTP Status für $gist_name: $HTTP_CODE"
+            if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+              echo "Fehler beim Aktualisieren von $gist_name:"
+              cat response.json
+              exit 1
+            fi
+
+          done < repo_files.txt
+
+      - name: Delete files that no longer exist in repo
+        env:
+          GIST_ID: 9bde9e234886c94d0c2c03757b0bb3d1
+          GH_TOKEN: ${{ secrets.GIST_TOKEN }}
+        run: |
+          set -e
+
+          # Wenn keine existing- oder repo-Liste da ist, raus
+          [ ! -f existing_gist_files.txt ] && exit 0
+
+          # Liste der Gist-Dateien, die wir behalten (aus Repo)
+          # Gleiche Transformation wie oben: / -> __
+          sed 's|/|__|g' repo_files.txt > new_gist_files.txt || touch new_gist_files.txt
+
+          echo "Neue Gist-Dateinamen (aus Repo abgeleitet):"
+          cat new_gist_files.txt || echo "Keine neuen Dateien."
+
+          while IFS= read -r old_name; do
+            [ -z "$old_name" ] && continue
+
+            # Wenn old_name NICHT in new_gist_files.txt vorkommt → löschen
+            if ! grep -qx "$old_name" new_gist_files.txt 2>/dev/null; then
+              echo "Lösche aus Gist (nicht mehr im Repo): $old_name"
+
+              jq -n --arg name "$old_name" \
+                '{files: {($name): null}}' > body_delete.json
+
+              HTTP_CODE=$(curl -s -o response_delete.json -w "%{http_code}" \
+                -X PATCH \
+                -H "Authorization: Bearer '"$GH_TOKEN"'" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/gists/$GIST_ID" \
+                -d @body_delete.json)
+
+              echo "HTTP Status für Löschung von $old_name: $HTTP_CODE"
+              if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+                echo "Fehler beim Löschen von $old_name:"
+                cat response_delete.json
+                exit 1
+              fi
+            fi
+          done < existing_gist_files.txt
