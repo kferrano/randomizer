@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="bad117a0-0f53-4804-b8d9-ff0c70750429" name="Changes" comment="Add manual event triggering and admin configuration&#10;&#10;Includes:&#10;- New `/randomizer manual` command for triggering random events for specific players.&#10;- `triggerManualEventForPlayer` method in `RandomizerManager`.&#10;- Added `allowManualWhenStopped` config option under a new &quot;Admin&quot; category.&#10;- Improved logging and error handling for manual events.&#10;- Code cleanup for event types and command structure." />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="randomizer" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Record" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {}
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/kferrano/randomizer.git&quot;,
+    &quot;accountId&quot;: &quot;3fa7b05e-b021-4c34-a782-5b035ca29afe&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="362tKsN4zBZZuCfHKJ3kBeIO4Ux" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.D:/Minecraft_Mods/1.21/randomizer [wrapper].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Minecraft_Mods\1.21\randomizer" />
+      <recent name="D:\Minecraft_Mods\1.21\randomizer\test" />
+    </key>
+  </component>
+  <component name="RunAnythingCache">
+    <myKeys>
+      <visibility group="Gradle Tasks" flag="true" />
+      <visibility group="HTTP Requests" flag="true" />
+      <visibility group="Maven Goals" flag="true" />
+      <visibility group="Recent projects" flag="true" />
+      <visibility group="Run configurations" flag="true" />
+      <visibility group="com.intellij.httpClient.http.request.run.HttpRequestRunAnythingProvider" flag="false" />
+      <visibility group="com.intellij.ide.actions.runAnything.RunAnythingRunConfigurationProvider" flag="false" />
+      <visibility group="com.intellij.ide.actions.runAnything.activity.RunAnythingRecentProjectProvider" flag="false" />
+      <visibility group="org.jetbrains.idea.maven.execution.MavenRunAnythingProvider" flag="false" />
+      <visibility group="org.jetbrains.plugins.gradle.execution.GradleRunAnythingProvider" flag="false" />
+    </myKeys>
+    <option name="myCommands">
+      <command value="v" />
+    </option>
+  </component>
+  <component name="RunManager" selected="Application.Client">
+    <configuration name="Client" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="net.neoforged.devlaunch.Main" />
+      <module name="randomizer.main" />
+      <option name="PROGRAM_PARAMETERS" value="@D:\\Minecraft_Mods\\1.21\\randomizer\\build\\moddev\\clientRunProgramArgs.txt" />
+      <option name="VM_PARAMETERS" value="@D:\\Minecraft_Mods\\1.21\\randomizer\\build\\moddev\\clientRunVmArgs.txt -Dfml.modFolders=randomizer%%D:\\Minecraft_Mods\\1.21\\randomizer\\build\\classes\\java\\main;randomizer%%D:\\Minecraft_Mods\\1.21\\randomizer\\build\\resources\\main" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Data" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="net.neoforged.devlaunch.Main" />
+      <module name="randomizer.main" />
+      <option name="PROGRAM_PARAMETERS" value="@D:\\Minecraft_Mods\\1.21\\randomizer\\build\\moddev\\dataRunProgramArgs.txt" />
+      <option name="VM_PARAMETERS" value="@D:\\Minecraft_Mods\\1.21\\randomizer\\build\\moddev\\dataRunVmArgs.txt -Dfml.modFolders=randomizer%%D:\\Minecraft_Mods\\1.21\\randomizer\\build\\classes\\java\\main;randomizer%%D:\\Minecraft_Mods\\1.21\\randomizer\\build\\resources\\main" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GameTestServer" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="net.neoforged.devlaunch.Main" />
+      <module name="randomizer.main" />
+      <option name="PROGRAM_PARAMETERS" value="@D:\\Minecraft_Mods\\1.21\\randomizer\\build\\moddev\\gameTestServerRunProgramArgs.txt" />
+      <option name="VM_PARAMETERS" value="@D:\\Minecraft_Mods\\1.21\\randomizer\\build\\moddev\\gameTestServerRunVmArgs.txt -Dfml.modFolders=randomizer%%D:\\Minecraft_Mods\\1.21\\randomizer\\build\\classes\\java\\main;randomizer%%D:\\Minecraft_Mods\\1.21\\randomizer\\build\\resources\\main" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Server" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="net.neoforged.devlaunch.Main" />
+      <module name="randomizer.main" />
+      <option name="PROGRAM_PARAMETERS" value="@D:\\Minecraft_Mods\\1.21\\randomizer\\build\\moddev\\serverRunProgramArgs.txt" />
+      <option name="VM_PARAMETERS" value="@D:\\Minecraft_Mods\\1.21\\randomizer\\build\\moddev\\serverRunVmArgs.txt -Dfml.modFolders=randomizer%%D:\\Minecraft_Mods\\1.21\\randomizer\\build\\classes\\java\\main;randomizer%%D:\\Minecraft_Mods\\1.21\\randomizer\\build\\resources\\main" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.28238.7" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bad117a0-0f53-4804-b8d9-ff0c70750429" name="Changes" comment="" />
+      <created>1764216435503</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1764216435503</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Add initial implementation of Randomizer mod&#10;&#10;Includes:&#10;- Core mod setup with `@Mod` annotation.&#10;- Event handling and initialization via `Randomizer` and `RandomizerManager`.&#10;- Definitions of data structures (EffectEntry, ItemEntry, MobEntry).&#10;- Random selection and application logic inside `RandomPools`.&#10;- Configuration handling in `RandomizerConfig`.&#10;- Simple HUD display with `RandomizerHud`.&#10;- Command registration for managing Randomizer states.">
+      <option name="closed" value="true" />
+      <created>1764406380275</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1764406380275</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Add initial implementation of Randomizer mod&#10;&#10;Includes:&#10;- Core mod setup with `@Mod` annotation.&#10;- Event handling and initialization via `Randomizer` and `RandomizerManager`.&#10;- Definitions of data structures (EffectEntry, ItemEntry, MobEntry).&#10;- Random selection and application logic inside `RandomPools`.&#10;- Configuration handling in `RandomizerConfig`.&#10;- Simple HUD display with `RandomizerHud`.&#10;- Command registration for managing Randomizer states.">
+      <option name="closed" value="true" />
+      <created>1764406545545</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1764406545545</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Add timer synchronization and HUD control networking&#10;&#10;Includes:&#10;- `RandomizerTimerPayload` for syncing elapsed timer ticks and running state between server and clients.&#10;- `RandomizerHudPayload` for syncing HUD actions (START, PAUSE, STOP) to clients.&#10;- Integration of timers and HUD updates in `RandomizerManager` and `Randomizer`.&#10;- `RandomizerClientPayloadHandler` to handle client-side HUD and timer updates.&#10;- New `RandomizerNetwork` utility for registering and sending networking payloads.">
+      <option name="closed" value="true" />
+      <created>1764412912715</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1764412912715</updated>
+    </task>
+    <task id="LOCAL-00004" summary="v0.1.1 – HUD Reset Fixes &amp; Timer Improvements&#10;&#10;🐛 Fix&#10;- Fixed HUD not resetting when disconnecting from a server (Logout → Menu → Singleplayer).&#10;- Fixed timer continuing visually after leaving a world.&#10;- Prevented HUD from remaining visible when no world or player is loaded.&#10;&#10;🔧 Improvement&#10;- Added additional HUD safety reset in renderer to catch cases where logout events are not fired.&#10;- Improved `/randomizer status` output to display time as mm:ss instead of raw ticks.">
+      <option name="closed" value="true" />
+      <created>1764497690999</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1764497690999</updated>
+    </task>
+    <task id="LOCAL-00005" summary="# Randomizer v0.2.0 – HUD Customization &amp; Configuration Overhaul&#10;&#10;This release delivers a major quality-of-life improvement by separating gameplay configuration (COMMON) from UI configuration (CLIENT), introducing a fully customizable HUD, and enhancing the overall configuration experience.&#10;&#10;---&#10;&#10;## ✨ Features&#10;* Added `disableHud`: Allows hiding the timer entirely&#10;* Added `hudX` + `hudY` for adjustable HUD placement&#10;* HUD settings now fully configurable in-game via NeoForge's configuration menu&#10;* Added dedicated client-only configuration file (`config/randomizer-client.toml`)&#10;&#10;---&#10;&#10;## 🔧 Improvements&#10;* Implemented safe-area rendering (prevents hotbar overlap)&#10;* Reduced HUD jittering across different GUI scales&#10;* Added translation keys for all config categories and entries&#10;* Added descriptive tooltips for all HUD-related settings&#10;&#10;---&#10;&#10;## 🐛 Fixes&#10;* Fixed HUD remaining visible after server disconnect or world changes&#10;* Fixed timer preserved incorrectly when switching between SP and MP&#10;* Added world/player null-safety checks to prevent stale HUD rendering&#10;* Fixed minor rendering inconsistencies across resolutions&#10;&#10;---&#10;&#10;## 📦 Modpack / Config&#10;* COMMON config now strictly server-authoritative (gameplay logic only)&#10;* CLIENT config now handles UI/HUD settings exclusively&#10;* Cleaner generated TOML files with readable structure and categories&#10;&#10;---&#10;&#10;## 🧩 Refactor&#10;* Moved all HUD-related definitions to the new Client config class&#10;* Simplified HUD render logic, state reset, and safe-area calculations&#10;* Separated categories in the configuration system (General, Content, Effects, Mobs, HUD)&#10;&#10;---&#10;&#10;## 📁 File / Project Structure&#10;* Added dedicated Client EntryPoint (`IConfigScreenFactory`)&#10;* Improved localization structure under `assets/randomizer/lang/`&#10;* Reorganized config initialization for clarity and maintainability&#10;&#10;---&#10;&#10;## ❤️ Special Thanks&#10;Thanks to everyone who tested the pre-release build and helped shape the new HUD customization system!">
+      <option name="closed" value="true" />
+      <created>1764502849976</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1764502849976</updated>
+    </task>
+    <task id="LOCAL-00006" summary="# Randomizer v0.3.0 – Display Overhaul &amp; Experimental Bossbar Mode&#10;&#10;This release significantly improves how events are displayed to the player and introduces an early experimental version of the Bossbar progress indicator.&#10;&#10;---&#10;&#10;## ✨ Features&#10;* Added **experimental Bossbar mode** (opt-in via config)  &#10;  - Displays progress toward the next event  &#10;  - Fully server-controlled  &#10;  - Currently not perfectly synchronized with HUD time → experimental label  &#10;* Improved event announcement formatting using readable tags:  &#10;  - `[Item]`, `[Effect]`, `[Mob]`&#10;&#10;---&#10;&#10;## 🔧 Improvements&#10;* Reworked event-timing pipeline for improved consistency  &#10;* More robust handling of pause/resume cycles  &#10;* HUD display logic refined  &#10;* Better clarity in all in-game system messages&#10;&#10;---&#10;&#10;## 🐛 Fixes&#10;* Fixed silent event failures in certain edge cases  &#10;* Fixed HUD state getting stuck after reconnect  &#10;* Fixed multiple small sync issues between timer states&#10;&#10;---&#10;&#10;## 📦 Modpack / Config&#10;* Added new **Display** config category  &#10;* Added `enableBossbar` (default: false)  &#10;* Added `showHudWithBossbar` (currently reserved for future behavior)  &#10;* Updated translation keys and tooltips for all display options&#10;&#10;---&#10;&#10;## 📁 File / Project Structure&#10;* Improved separation between display logic, HUD logic, and event execution  &#10;* Added new translation entries under `assets/randomizer/lang/`  &#10;* General internal cleanup to prepare for 1.0.0&#10;&#10;---&#10;&#10;## ⚠️ Experimental Notice&#10;Bossbar mode is functional but not final.  &#10;It is included for testing and user feedback before the 1.0.0 milestone.">
+      <option name="closed" value="true" />
+      <created>1764564495066</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1764564495066</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Add manual event triggering and admin configuration&#10;&#10;Includes:&#10;- New `/randomizer manual` command for triggering random events for specific players.&#10;- `triggerManualEventForPlayer` method in `RandomizerManager`.&#10;- Added `allowManualWhenStopped` config option under a new &quot;Admin&quot; category.&#10;- Improved logging and error handling for manual events.&#10;- Code cleanup for event types and command structure.">
+      <option name="closed" value="true" />
+      <created>1764728593139</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1764728593139</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Add initial implementation of Randomizer mod&#10;&#10;Includes:&#10;- Core mod setup with `@Mod` annotation.&#10;- Event handling and initialization via `Randomizer` and `RandomizerManager`.&#10;- Definitions of data structures (EffectEntry, ItemEntry, MobEntry).&#10;- Random selection and application logic inside `RandomPools`.&#10;- Configuration handling in `RandomizerConfig`.&#10;- Simple HUD display with `RandomizerHud`.&#10;- Command registration for managing Randomizer states." />
+    <MESSAGE value="Add timer synchronization and HUD control networking&#10;&#10;Includes:&#10;- `RandomizerTimerPayload` for syncing elapsed timer ticks and running state between server and clients.&#10;- `RandomizerHudPayload` for syncing HUD actions (START, PAUSE, STOP) to clients.&#10;- Integration of timers and HUD updates in `RandomizerManager` and `Randomizer`.&#10;- `RandomizerClientPayloadHandler` to handle client-side HUD and timer updates.&#10;- New `RandomizerNetwork` utility for registering and sending networking payloads." />
+    <MESSAGE value="** Randomizer – Changelog v0.1.1**&#10;&#10;__ Fix__  &#10;* HUD now correctly resets when disconnecting from a server (Logout → Main Menu → Singleplayer).  &#10;* Fixed the timer continuing visually after leaving a world.  &#10;* Prevented the HUD from remaining visible when no world or player is loaded.  &#10;&#10;__ Improvement__  &#10;* Added an additional HUD safety reset inside the renderer to catch rare edge cases where logout events are not triggered by other mods.  &#10;* Improved `/randomizer status` output to display time in **mm:ss** format instead of raw tick values.&#10;" />
+    <MESSAGE value="v0.1.1 – HUD Reset Fixes &amp; Timer Improvements&#10;&#10; Fix&#10;- Fixed HUD not resetting when disconnecting from a server (Logout → Menu → Singleplayer).&#10;- Fixed timer continuing visually after leaving a world.&#10;- Prevented HUD from remaining visible when no world or player is loaded.&#10;&#10; Improvement&#10;- Added additional HUD safety reset in renderer to catch cases where logout events are not fired.&#10;- Improved `/randomizer status` output to display time as mm:ss instead of raw ticks." />
+    <MESSAGE value="# Randomizer v0.2.0 – HUD Customization &amp; Configuration Overhaul&#10;&#10;This release delivers a major quality-of-life improvement by separating gameplay configuration (COMMON) from UI configuration (CLIENT), introducing a fully customizable HUD, and enhancing the overall configuration experience.&#10;&#10;---&#10;&#10;## ✨ Features&#10;* Added `disableHud`: Allows hiding the timer entirely&#10;* Added `hudX` + `hudY` for adjustable HUD placement&#10;* HUD settings now fully configurable in-game via NeoForge's configuration menu&#10;* Added dedicated client-only configuration file (`config/randomizer-client.toml`)&#10;&#10;---&#10;&#10;##  Improvements&#10;* Implemented safe-area rendering (prevents hotbar overlap)&#10;* Reduced HUD jittering across different GUI scales&#10;* Added translation keys for all config categories and entries&#10;* Added descriptive tooltips for all HUD-related settings&#10;&#10;---&#10;&#10;##  Fixes&#10;* Fixed HUD remaining visible after server disconnect or world changes&#10;* Fixed timer preserved incorrectly when switching between SP and MP&#10;* Added world/player null-safety checks to prevent stale HUD rendering&#10;* Fixed minor rendering inconsistencies across resolutions&#10;&#10;---&#10;&#10;##  Modpack / Config&#10;* COMMON config now strictly server-authoritative (gameplay logic only)&#10;* CLIENT config now handles UI/HUD settings exclusively&#10;* Cleaner generated TOML files with readable structure and categories&#10;&#10;---&#10;&#10;##  Refactor&#10;* Moved all HUD-related definitions to the new Client config class&#10;* Simplified HUD render logic, state reset, and safe-area calculations&#10;* Separated categories in the configuration system (General, Content, Effects, Mobs, HUD)&#10;&#10;---&#10;&#10;##  File / Project Structure&#10;* Added dedicated Client EntryPoint (`IConfigScreenFactory`)&#10;* Improved localization structure under `assets/randomizer/lang/`&#10;* Reorganized config initialization for clarity and maintainability&#10;&#10;---&#10;&#10;## ❤️ Special Thanks&#10;Thanks to everyone who tested the pre-release build and helped shape the new HUD customization system!" />
+    <MESSAGE value="# Randomizer v0.3.0 – Display Overhaul &amp; Experimental Bossbar Mode&#10;&#10;This release significantly improves how events are displayed to the player and introduces an early experimental version of the Bossbar progress indicator.&#10;&#10;---&#10;&#10;## ✨ Features&#10;* Added **experimental Bossbar mode** (opt-in via config)  &#10;  - Displays progress toward the next event  &#10;  - Fully server-controlled  &#10;  - Currently not perfectly synchronized with HUD time → experimental label  &#10;* Improved event announcement formatting using readable tags:  &#10;  - `[Item]`, `[Effect]`, `[Mob]`&#10;&#10;---&#10;&#10;##  Improvements&#10;* Reworked event-timing pipeline for improved consistency  &#10;* More robust handling of pause/resume cycles  &#10;* HUD display logic refined  &#10;* Better clarity in all in-game system messages&#10;&#10;---&#10;&#10;##  Fixes&#10;* Fixed silent event failures in certain edge cases  &#10;* Fixed HUD state getting stuck after reconnect  &#10;* Fixed multiple small sync issues between timer states&#10;&#10;---&#10;&#10;##  Modpack / Config&#10;* Added new **Display** config category  &#10;* Added `enableBossbar` (default: false)  &#10;* Added `showHudWithBossbar` (currently reserved for future behavior)  &#10;* Updated translation keys and tooltips for all display options&#10;&#10;---&#10;&#10;##  File / Project Structure&#10;* Improved separation between display logic, HUD logic, and event execution  &#10;* Added new translation entries under `assets/randomizer/lang/`  &#10;* General internal cleanup to prepare for 1.0.0&#10;&#10;---&#10;&#10;## ⚠️ Experimental Notice&#10;Bossbar mode is functional but not final.  &#10;It is included for testing and user feedback before the 1.0.0 milestone." />
+    <MESSAGE value="# Randomizer v0.3.0 – Display Overhaul &amp; Experimental Bossbar Mode&#10;&#10;This release significantly improves how events are displayed to the player and introduces an early experimental version of the Bossbar progress indicator.&#10;&#10;---&#10;&#10;## ✨ Features&#10;* Added **experimental Bossbar mode** (opt-in via config)  &#10;  - Displays progress toward the next event  &#10;  - Fully server-controlled  &#10;  - Currently not perfectly synchronized with HUD time → experimental label  &#10;* Improved event announcement formatting using readable tags:  &#10;  - `[Item]`, `[Effect]`, `[Mob]`&#10;&#10;---&#10;&#10;##  Improvements&#10;* Reworked event-timing pipeline for improved consistency  &#10;* More robust handling of pause/resume cycles  &#10;* HUD display logic refined  &#10;* Better clarity in all in-game system messages&#10;&#10;---&#10;&#10;##  Fixes&#10;* Fixed silent event failures in certain edge cases  &#10;* Fixed HUD state getting stuck after reconnect  &#10;* Fixed multiple small sync issues between timer states&#10;&#10;---&#10;&#10;##  Modpack / Config&#10;* Added new **Display** config category  &#10;* Added `enableBossbar` (default: false)  &#10;* Added `showHudWithBossbar` (currently reserved for future behavior)  &#10;* Updated translation keys and tooltips for all display options&#10;&#10;---&#10;&#10;##  File / Project Structure&#10;* Improved separation between display logic, HUD logic, and event execution  &#10;* Added new translation entries under `assets/randomizer/lang/`  &#10;* General internal cleanup to prepare for 1.0.0&#10;&#10;---&#10;&#10;## ⚠️ Experimental Notice&#10;Bossbar mode is functional but not final.  &#10;It is included for testing and user feedback before the 1.0.0 milestone." />
+    <MESSAGE value="Add manual event triggering and admin configuration&#10;&#10;Includes:&#10;- New `/randomizer manual` command for triggering random events for specific players.&#10;- `triggerManualEventForPlayer` method in `RandomizerManager`.&#10;- Added `allowManualWhenStopped` config option under a new &quot;Admin&quot; category.&#10;- Improved logging and error handling for manual events.&#10;- Code cleanup for event types and command structure." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add manual event triggering and admin configuration&#10;&#10;Includes:&#10;- New `/randomizer manual` command for triggering random events for specific players.&#10;- `triggerManualEventForPlayer` method in `RandomizerManager`.&#10;- Added `allowManualWhenStopped` config option under a new &quot;Admin&quot; category.&#10;- Improved logging and error handling for manual events.&#10;- Code cleanup for event types and command structure." />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>
