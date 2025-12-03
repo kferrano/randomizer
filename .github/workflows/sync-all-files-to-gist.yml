@@ -119,7 +119,7 @@ jobs:
           done < repo_files.txt
 
 
-            - name: Delete files that no longer exist in repo
+      - name: Delete files that no longer exist in repo
         env:
           GIST_ID: 3031e418dacabb4f9a25206969b4a483
           GH_TOKEN: ${{ secrets.GIST_TOKEN }}
