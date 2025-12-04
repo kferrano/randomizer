@@ -1,0 +1,167 @@
+name: Sync all source files to a single Gist
+
+on:
+  push:
+    branches:
+      - master
+      # ggf. weitere Branches ergänzen
+
+jobs:
+  sync-to-gist:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Collect repo files
+        run: |
+          set -e
+          # Alle Dateien, die wir ins Gist spiegeln wollen:
+          find src -type f \( \
+              -name '*.java' \
+              -o -name '*.json' \
+              -o -name '*.toml' \
+              -o -name '*.mcmeta' \
+              -o -name '*.lang' \
+            \) > repo_files.txt
+
+          echo "Gefundene Dateien:"
+          cat repo_files.txt || echo "Keine Dateien gefunden."
+
+      - name: Read existing Gist files
+        env:
+          GIST_ID: 3031e418dacabb4f9a25206969b4a483
+          GH_TOKEN: ${{ secrets.GIST_TOKEN }}
+        run: |
+          set -e
+          # Liste der vorhandenen Dateien im Gist holen (kann leer sein)
+          curl -s \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/gists/$GIST_ID" \
+            | jq -r '.files | keys[]?' > existing_gist_files.txt || echo "" > existing_gist_files.txt
+
+          echo "Dateien, die aktuell im Gist sind:"
+          cat existing_gist_files.txt || echo "Keine Dateien im Gist."
+
+      - name: Check token length
+        env:
+          GH_TOKEN: ${{ secrets.GIST_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "GH_TOKEN ist LEER – Secret GIST_TOKEN ist nicht gesetzt oder Name falsch."
+            exit 1
+          fi
+          echo "GH_TOKEN Länge: ${#GH_TOKEN}"
+
+      - name: Update or create files in Gist
+        env:
+          GIST_ID: 3031e418dacabb4f9a25206969b4a483
+          GH_TOKEN: ${{ secrets.GIST_TOKEN }}
+        run: |
+          set -e
+
+          if [ ! -s repo_files.txt ]; then
+            echo "Keine Repo-Dateien gefunden, überspringe Update-Schritt."
+            exit 0
+          fi
+
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+
+            # Gist-Dateiname: Pfade durch "__" ersetzen (Gist kann keine Ordner)
+            gist_name=$(echo "$file" | sed 's|/|__|g')
+            echo "Sync Datei: $file -> $gist_name"
+
+            content=$(cat "$file")
+
+            # JSON für genau diese eine Datei bauen
+            jq -n --arg name "$gist_name" --arg content "$content" \
+              '{files: {($name): {content: $content}}}' > body.json
+
+            attempt=1
+            max_attempts=3
+            HTTP_CODE=0
+
+            while [ $attempt -le $max_attempts ]; do
+              echo "Versuch $attempt für $gist_name ..."
+
+              HTTP_CODE=$(curl -s -o response.json -w "%{http_code}" \
+                -X PATCH \
+                -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
+                "https://api.github.com/gists/$GIST_ID" \
+                -d @body.json)
+
+              echo "HTTP Status für $gist_name (Versuch $attempt): $HTTP_CODE"
+
+              if [ "$HTTP_CODE" -eq 409 ]; then
+                echo "409 Conflict für $gist_name – kurz warten und nochmal versuchen ..."
+                sleep 2
+                attempt=$((attempt + 1))
+                continue
+              fi
+
+              # Bei allem anderen aus der Retry-Schleife raus
+              break
+            done
+
+            # Wenn nach allen Versuchen immer noch kein Erfolg → Fehler
+            if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+              echo "Fehler beim Aktualisieren von $gist_name nach $max_attempts Versuchen:"
+              cat response.json
+              exit 1
+            fi
+
+            # Kleine Pause zwischen Dateien
+            sleep 1
+
+          done < repo_files.txt
+
+      - name: Delete files that no longer exist in repo
+        env:
+          GIST_ID: 3031e418dacabb4f9a25206969b4a483
+          GH_TOKEN: ${{ secrets.GIST_TOKEN }}
+        run: |
+          set -e
+
+          [ ! -f existing_gist_files.txt ] && exit 0
+
+          # Neue Gist-Dateinamen = gleiche Transformation wie oben: "/" -> "__"
+          sed 's|/|__|g' repo_files.txt > new_gist_files.txt || touch new_gist_files.txt
+
+          echo "Neue Gist-Dateinamen (aus Repo abgeleitet):"
+          cat new_gist_files.txt || echo "Keine neuen Dateien."
+
+          while IFS= read -r old_name; do
+            [ -z "$old_name" ] && continue
+
+            # Wenn old_name NICHT in new_gist_files.txt vorkommt → löschen
+            if ! grep -qx "$old_name" new_gist_files.txt 2>/dev/null; then
+              echo "Lösche aus Gist (nicht mehr im Repo): $old_name"
+
+              jq -n --arg name "$old_name" \
+                '{files: {($name): null}}' > body_delete.json
+
+              HTTP_CODE=$(curl -s -o response_delete.json -w "%{http_code}" \
+                -X PATCH \
+                -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
+                "https://api.github.com/gists/$GIST_ID" \
+                -d @body_delete.json)
+
+              echo "HTTP Status für Löschung von $old_name: $HTTP_CODE"
+              if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+                echo "Fehler beim Löschen von $old_name:"
+                cat response_delete.json
+                exit 1
+              fi
+            fi
+          done < existing_gist_files.txt
