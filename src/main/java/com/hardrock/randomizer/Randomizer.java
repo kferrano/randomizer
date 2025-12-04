@@ -9,6 +9,7 @@ import net.minecraft.server.MinecraftServer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.config.ModConfig;
@@ -44,6 +45,7 @@ public class Randomizer {
         modContainer.registerConfig(ModConfig.Type.COMMON, RandomizerConfig.COMMON_SPEC);
         modContainer.registerConfig(ModConfig.Type.CLIENT, RandomizerConfig.CLIENT_SPEC);
         NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerLogin);
     }
 
     private void onServerTick(ServerTickEvent.Post event) {
@@ -213,6 +215,39 @@ public class Randomizer {
     public static Component randomizerPrefix() {
         return Component.literal("[Randomizer] ")
                 .withStyle(ChatFormatting.GOLD);
+    }
+
+    private void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+
+        // Gleicher Manager wie bei Tick/Commands
+        RandomizerManager manager = this.randomizerManager;
+        if (manager == null) {
+            RandomizerNetwork.sendHudActionToPlayer(player, RandomizerHudPayload.Action.STOP);
+            return;
+        }
+
+        RandomizerManager.State state = manager.getState();
+
+        // Wenn Randomizer nicht läuft → HUD aus
+        if (state == RandomizerManager.State.STOPPED) {
+            RandomizerNetwork.sendHudActionToPlayer(player, RandomizerHudPayload.Action.STOP);
+            return;
+        }
+
+        boolean running = (state == RandomizerManager.State.RUNNING);
+
+        // 1) HUD-Zustand setzen (Start / Pause)
+        RandomizerNetwork.sendHudActionToPlayer(
+                player,
+                running ? RandomizerHudPayload.Action.START : RandomizerHudPayload.Action.PAUSE
+        );
+
+        // 2) Timer-Daten schicken – gleiche Logik wie dein Timer-Payload: elapsedTicks + running
+        long elapsedTicks = manager.getElapsedTicks();
+        RandomizerNetwork.sendTimerToPlayer(player, elapsedTicks, running);
     }
 }
 

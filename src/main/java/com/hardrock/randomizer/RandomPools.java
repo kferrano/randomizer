@@ -9,14 +9,17 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.monster.Pillager;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.item.Items;
 
 
 import java.util.ArrayList;
@@ -319,10 +322,10 @@ public class RandomPools {
         int spawned = 0;
         String mobName = "mob";
 
-// Basiswert aus Entry
+        // Basiswert aus Entry
         int baseCount = entry.count();
 
-// z.B. zwischen 50% und 150% des Basiswerts
+        // z.B. zwischen 50% und 150% des Basiswerts
         int min = Math.max(1, baseCount / 2);
         int max = Math.max(min, (int) Math.round(baseCount * 1.5));
 
@@ -339,16 +342,49 @@ public class RandomPools {
             Holder<EntityType<?>> typeHolder = optTypeHolder.get();
             EntityType<?> type = typeHolder.value();
 
+            // Entity EINMAL erzeugen
             var entity = type.create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
-            if (entity == null) continue;
+            if (!(entity instanceof Mob mob)) {
+                // Keine echte Mob-Entity → überspringen
+                continue;
+            }
 
-            entity.snapTo(spawnPos, 0.0F, 0.0F);
-            level.addFreshEntity(entity);
+            // Position & Rotation setzen
+            double x = spawnPos.getX() + 0.5D;
+            double y = spawnPos.getY();
+            double z = spawnPos.getZ() + 0.5D;
+            float yaw = level.random.nextFloat() * 360.0F;
+
+            mob.setPos(x, y, z);
+            mob.setYRot(yaw);
+            mob.yHeadRot = yaw;
+            mob.yBodyRot = yaw;
+
+            // Vanilla-Spawn-Initialisierung (AI, Ausrüstung, etc.)
+            mob.finalizeSpawn(
+                    level,
+                    level.getCurrentDifficultyAt(spawnPos),
+                    net.minecraft.world.entity.EntitySpawnReason.TRIGGERED,
+                    null
+            );
+
+            // Spezieller Fix: Pillager ohne Waffe → Crossbow geben
+            if (mob instanceof Pillager pillager && pillager.getMainHandItem().isEmpty()) {
+                pillager.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.CROSSBOW));
+            }
+
+            // (Optional) Warden persistent machen – wenn du ihn nicht default blacklistest
+        /*
+        if (mob instanceof Warden warden) {
+            warden.setPersistenceRequired();
+        }
+        */
+
+            level.addFreshEntity(mob);
             spawned++;
 
-            mobName = entity.getType().getDescription().getString();
+            mobName = mob.getType().getDescription().getString();
         }
-
 
         if (spawned <= 0) return null;
 

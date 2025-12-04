@@ -169,7 +169,7 @@ public class RandomizerConfig {
                     .translation("randomizer.common.content.mobBlacklist")
                     .comment("Blacklist of mob ids (e.g. \"minecraft:wither\", \"minecraft:ender_dragon\").")
                     .defineList("mobBlacklist",
-                            List.of("minecraft:wither", "minecraft:ender_dragon"),
+                            List.of("minecraft:wither", "minecraft:ender_dragon", "minecraft:giant"),
                             o -> o instanceof String);
 
             itemBlacklist = builder

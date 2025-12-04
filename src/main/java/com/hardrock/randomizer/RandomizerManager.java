@@ -83,6 +83,7 @@ public class RandomizerManager {
         }
         if (state == State.STOPPED) {
             tickCounter = 0;
+            elapsedTicks = 0;
         }
         state = State.RUNNING;
         if (RandomizerConfig.COMMON.enableBossbar.get()) {
@@ -107,6 +108,7 @@ public class RandomizerManager {
         }
         state = State.STOPPED;
         tickCounter = 0;
+        elapsedTicks = 0;
         if (RandomizerConfig.COMMON.enableBossbar.get()) {
             bossBar.setVisible(false);
             bossBar.setProgress(0.0f);
@@ -180,6 +182,8 @@ public class RandomizerManager {
 
         // ========== TickCounter hochzählen ==========
         tickCounter++;
+        elapsedTicks++;
+
 
         // Noch nicht genug Zeit für ein Event
         if (tickCounter < delayTicks) return;

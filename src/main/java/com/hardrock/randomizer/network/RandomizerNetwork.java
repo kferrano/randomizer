@@ -1,6 +1,7 @@
 package com.hardrock.randomizer.network;
 
 import com.hardrock.randomizer.Randomizer;
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -36,4 +37,13 @@ public class RandomizerNetwork {
     public static void sendTimerToAllPlayers(long elapsedTicks, boolean running) {
         PacketDistributor.sendToAllPlayers(new RandomizerTimerPayload(elapsedTicks, running));
     }
+
+    public static void sendHudActionToPlayer(ServerPlayer player, RandomizerHudPayload.Action action) {
+        PacketDistributor.sendToPlayer(player, new RandomizerHudPayload(action));
+    }
+
+    public static void sendTimerToPlayer(ServerPlayer player, long elapsedTicks, boolean running) {
+        PacketDistributor.sendToPlayer(player, new RandomizerTimerPayload(elapsedTicks, running));
+    }
+
 }
