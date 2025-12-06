@@ -15,6 +15,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 import java.util.List;
 import java.util.Random;
@@ -35,6 +38,7 @@ public class RandomizerManager {
     private int tickCounter = 0;
     private long elapsedTicks = 0;
     private final ServerBossEvent bossBar;
+    private final Set<UUID> bossbarHiddenPlayers = new HashSet<>();
 
 
     public enum State {
@@ -67,6 +71,17 @@ public class RandomizerManager {
         bossBar.removeAllPlayers();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             bossBar.addPlayer(player);
+        }
+    }
+
+    public void setBossbarPreference(ServerPlayer player, boolean disableBossbar) {
+        UUID id = player.getUUID();
+        if (disableBossbar) {
+            bossbarHiddenPlayers.add(id);
+            bossBar.removePlayer(player);
+        } else {
+            bossbarHiddenPlayers.remove(id);
+            // nicht sofort adden – passiert im Tick, damit alles zentral ist
         }
     }
 
@@ -165,7 +180,9 @@ public class RandomizerManager {
         if (RandomizerConfig.COMMON.enableBossbar.get()) {
             bossBar.removeAllPlayers();
             for (ServerPlayer p : server.getPlayerList().getPlayers()) {
-                bossBar.addPlayer(p);
+                if (!bossbarHiddenPlayers.contains(p.getUUID())) {
+                    bossBar.addPlayer(p);
+                }
             }
 
             float progress = tickCounter / (float) delayTicks;

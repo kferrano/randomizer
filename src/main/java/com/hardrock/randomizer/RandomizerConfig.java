@@ -275,6 +275,7 @@ public class RandomizerConfig {
         public final ModConfigSpec.BooleanValue disableHud;
         public final ModConfigSpec.DoubleValue hudX;
         public final ModConfigSpec.DoubleValue hudY;
+        public final ModConfigSpec.BooleanValue disableBossbar;
 
         Client(ModConfigSpec.Builder builder) {
             builder
@@ -282,6 +283,10 @@ public class RandomizerConfig {
                     .translation("randomizer.config.category.hud")
                     .push("hud");
 
+            disableBossbar = builder
+                    .translation("randomizer.config.hud.disableBossbar")
+                    .comment("If true, the Randomizer Bossbar is completely disabled on this client.")
+                    .define("disableBossbar", false);
             disableHud = builder
                     .translation("randomizer.config.hud.disableHud")
                     .comment("If true, the Randomizer HUD timer is completely disabled on this client.")
