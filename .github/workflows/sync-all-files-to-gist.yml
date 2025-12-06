@@ -110,31 +110,73 @@ jobs:
           fi
           echo "GH_TOKEN Länge: ${#GH_TOKEN}"
 
-      - name: Update or create files in Gist (only changed)
+            - name: Update or create files in Gist (changed + missing)
         env:
           GIST_ID: 3031e418dacabb4f9a25206969b4a483
           GH_TOKEN: ${{ secrets.GIST_TOKEN }}
         run: |
           set -e
 
-          if [ ! -s changed_files.txt ]; then
-            echo "Keine geänderten Dateien – überspringe Update-Schritt."
+          # Falls keine repo_files.txt existiert, abbrechen
+          if [ ! -s repo_files.txt ]; then
+            echo "Keine Repo-Dateien gefunden, überspringe Update-Schritt."
             exit 0
           fi
 
-          echo "Synchronisiere nur geänderte Dateien:"
-          cat changed_files.txt
+          # Basis: geänderte Dateien
+          : > to_sync.txt
+          if [ -s changed_files.txt ]; then
+            echo "Geänderte Dateien:"
+            cat changed_files.txt
+            cat changed_files.txt >> to_sync.txt
+          else
+            echo "Keine geänderten Dateien im aktuellen Push."
+          fi
+
+          # Zusätzliche Dateien: existieren im Repo, aber noch nicht im Gist
+          # -> müssen einmalig hochgeladen werden (Backfill)
+          if [ -s existing_gist_files.txt ]; then
+            echo "Prüfe auf fehlende Dateien im Gist..."
+            while IFS= read -r file; do
+              [ -z "$file" ] && continue
+
+              # Gist-Name wie im Rest: "/" -> "__"
+              gist_name=$(echo "$file" | sed 's|/|__|g')
+
+              # Wenn diese Gist-Datei noch NICHT existiert, hinzufügen
+              if ! grep -qx "$gist_name" existing_gist_files.txt 2>/dev/null; then
+                echo "Datei fehlt im Gist, wird hinzugefügt: $file"
+                echo "$file" >> to_sync.txt
+              fi
+            done < repo_files.txt
+          else
+            echo "existing_gist_files.txt leer oder fehlt – behandle alle Dateien als neu."
+            cat repo_files.txt >> to_sync.txt
+          fi
+
+          # Duplikate entfernen
+          sort -u to_sync.txt -o to_sync.txt
+
+          if [ ! -s to_sync.txt ]; then
+            echo "Nichts zu synchronisieren."
+            exit 0
+          fi
+
+          echo "Finale Sync-Liste:"
+          cat to_sync.txt
 
           while IFS= read -r file; do
             [ -z "$file" ] && continue
+            if [ ! -f "$file" ]; then
+              echo "Überspringe (kein reguläres File): $file"
+              continue;
+            fi
 
-            # Gist-Dateiname: Pfade durch "__" ersetzen (Gist kann keine Ordner)
             gist_name=$(echo "$file" | sed 's|/|__|g')
             echo "Sync Datei: $file -> $gist_name"
 
             content=$(cat "$file")
 
-            # JSON für genau diese eine Datei bauen
             jq -n --arg name "$gist_name" --arg content "$content" \
               '{files: {($name): {content: $content}}}' > body.json
 
@@ -162,21 +204,19 @@ jobs:
                 continue
               fi
 
-              # Bei allem anderen aus der Retry-Schleife raus
               break
             done
 
-            # Wenn nach allen Versuchen immer noch kein Erfolg → Fehler
             if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
               echo "Fehler beim Aktualisieren von $gist_name nach $max_attempts Versuchen:"
               cat response.json
               exit 1
             fi
 
-            # Kleine Pause zwischen Dateien
             sleep 1
 
-          done < changed_files.txt
+          done < to_sync.txt
+
 
       - name: Delete files that no longer exist in repo
         env:
