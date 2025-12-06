@@ -38,27 +38,36 @@ jobs:
         run: |
           set -e
 
-          # Wenn nur ein Commit vorhanden ist (z.B. erster Lauf),
-          # behandeln wir alle gefundenen Dateien als "geändert".
-          if [ "$(git rev-list --count HEAD)" -le 1 ]; then
-            echo "Erster Lauf oder nur ein Commit – alle Dateien aus repo_files.txt als geändert markieren."
+          # SHA vor dem Push und aktueller SHA
+          BEFORE_SHA="${{ github.event.before }}"
+          AFTER_SHA="${{ github.sha }}"
+
+          echo "Vorheriger SHA: $BEFORE_SHA"
+          echo "Aktueller SHA:  $AFTER_SHA"
+
+          # Wenn BEFORE_SHA eine Null-SHA ist (z.B. erster Push auf Branch),
+          # dann behandeln wir alle Dateien aus repo_files.txt als geändert.
+          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            echo "Erster Push auf diesen Branch – markiere alle Dateien als geändert."
             cp repo_files.txt changed_files.txt
             cat changed_files.txt
             exit 0
           fi
 
-          # Dateien, die sich seit dem letzten Commit geändert haben
-          CHANGED=$(git diff --name-only HEAD^ HEAD || true)
+          # Alle geänderten Dateien im aktuellen Push
+          CHANGED=$(git diff --name-only "$BEFORE_SHA" "$AFTER_SHA" || true)
 
-          echo "Alle geänderten Dateien im letzten Commit:"
+          echo "Alle geänderten Dateien im Push:"
           echo "$CHANGED"
 
-          # Nur Dateien aus src, die auch in repo_files.txt stehen
           : > changed_files.txt
+
+          # Nur Dateien übernehmen, die:
+          # 1) unter src/ liegen
+          # 2) auch in repo_files.txt gelistet sind (also von deinem find-Filter erfasst)
           while IFS= read -r file; do
             [ -z "$file" ] && continue
 
-            # Nur src-Dateien, die im Repo-File-Set sind
             if echo "$file" | grep -q '^src/'; then
               if grep -qx "$file" repo_files.txt 2>/dev/null; then
                 echo "$file" >> changed_files.txt
@@ -72,6 +81,7 @@ jobs:
           else
             echo "Keine relevanten Änderungen."
           fi
+
 
       - name: Read existing Gist files
         env:
