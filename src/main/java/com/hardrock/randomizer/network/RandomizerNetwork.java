@@ -32,14 +32,19 @@ public class RandomizerNetwork {
         );
 
         // Bossbar
-        registrar.playToServer(RandomizerBossbarPreferencePayload.TYPE, RandomizerBossbarPreferencePayload.STREAM_CODEC, (payload, ctx) -> {
-            ctx.enqueueWork(() -> {
-                if (ctx.player() instanceof ServerPlayer player) {
-                    RandomizerManager.INSTANCE.setBossbarPreference(player, payload.disableBossbar());
+        registrar.playToServer(
+                RandomizerBossbarPreferencePayload.TYPE,
+                RandomizerBossbarPreferencePayload.STREAM_CODEC,
+                (payload, ctx) -> {
+                    ctx.enqueueWork(() -> {
+                        if (ctx.player() instanceof ServerPlayer player) {
+                            RandomizerManager.get().setBossbarPreference(player, payload.disableBossbar());
+                        }
+                    });
                 }
-            });
-        });
+        );
     }
+
 
 
     public static void sendBossbarPreferenceToServer(boolean disableBossbar) {

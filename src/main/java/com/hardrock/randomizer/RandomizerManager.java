@@ -4,6 +4,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import com.mojang.logging.LogUtils;
+import net.minecraft.util.Mth;
 import org.slf4j.Logger;
 import com.hardrock.randomizer.network.RandomizerNetwork;
 import net.minecraft.world.BossEvent;
@@ -25,6 +26,7 @@ import java.util.Random;
 public class RandomizerManager {
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    public static final RandomizerManager INSTANCE = new RandomizerManager();
 
     private int lastDelaySeconds = -1;
     private int delayTicks = 20 * 60;
@@ -47,16 +49,16 @@ public class RandomizerManager {
         STOPPED
     }
 
-    public static RandomizerManager INSTANCE;
-
-    public RandomizerManager() {
-        INSTANCE = this;
+    public static RandomizerManager get() {
+        return INSTANCE;
+    }
+    private RandomizerManager() {
         this.bossBar = new ServerBossEvent(
                 Component.literal("Randomizer"),
                 BossEvent.BossBarColor.BLUE,
                 BossEvent.BossBarOverlay.PROGRESS
         );
-        this.bossBar.setVisible(false);
+        bossBar.setVisible(false);
     }
 
     public int getTickCounter() {
@@ -179,7 +181,9 @@ public class RandomizerManager {
 
         // Bossbar: TickCounter zeigt Fortschritt
         if (RandomizerConfig.COMMON.enableBossbar.get()) {
+
             bossBar.removeAllPlayers();
+
             for (ServerPlayer p : server.getPlayerList().getPlayers()) {
                 if (!bossbarHiddenPlayers.contains(p.getUUID())) {
                     bossBar.addPlayer(p);
@@ -187,8 +191,7 @@ public class RandomizerManager {
             }
 
             float progress = tickCounter / (float) delayTicks;
-            if (progress < 0f) progress = 0f;
-            if (progress > 1f) progress = 1f;
+            progress = Mth.clamp(progress, 0f, 1f);
 
             bossBar.setVisible(true);
             bossBar.setProgress(progress);
@@ -196,7 +199,9 @@ public class RandomizerManager {
             if (progress < 0.5f) bossBar.setColor(BossEvent.BossBarColor.GREEN);
             else if (progress < 0.8f) bossBar.setColor(BossEvent.BossBarColor.YELLOW);
             else bossBar.setColor(BossEvent.BossBarColor.RED);
+
         }
+
 
         // ========== TickCounter hochzählen ==========
         tickCounter++;

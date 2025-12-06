@@ -33,14 +33,12 @@ public class Randomizer {
 
     public static final String MOD_ID = "randomizer";
     private static final Logger LOGGER = LogUtils.getLogger();
-    private final RandomizerManager randomizerManager;
     public static RandomizerManager MANAGER;
 
 
     public Randomizer(IEventBus modEventBus, ModContainer modContainer) {
-        this.randomizerManager = new RandomizerManager();
-        MANAGER = this.randomizerManager;
-        RandomizerManager.INSTANCE = this.randomizerManager;
+        RandomizerManager manager = RandomizerManager.INSTANCE;
+
 
         LOGGER.info("Randomizer mod initializing.");
         NeoForge.EVENT_BUS.addListener(this::onServerTick);
@@ -52,9 +50,7 @@ public class Randomizer {
 
     private void onServerTick(ServerTickEvent.Post event) {
         // ServerTickEvent hat in 1.21.x getServer()
-        MinecraftServer server = event.getServer();
-        randomizerManager.onServerTick(server);
-
+        RandomizerManager.INSTANCE.onServerTick(event.getServer());
     }
 
     public static ResourceLocation rl(String id) {
@@ -78,139 +74,94 @@ public class Randomizer {
 
 
     private void onRegisterCommands(RegisterCommandsEvent event) {
-        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+        var dispatcher = event.getDispatcher();
 
-        dispatcher.register(Commands.literal("randomizer")
-                .requires(source -> source.hasPermission(2)) // OP-Level 2
-                .then(Commands.literal("start")
-                        .executes(ctx -> {
-                            RandomizerManager.State state = randomizerManager.getState();
-                            if (state == RandomizerManager.State.RUNNING) {
-                                ctx.getSource().sendFailure(
-                                        Component.empty()
-                                                .append(Randomizer.randomizerPrefix())
-                                                .append(Component.literal("is already running."))
-                                );
-                                return 0;
-                            }
-                            randomizerManager.start();
-                            RandomizerNetwork.sendHudActionToAllPlayers(RandomizerHudPayload.Action.START);
-                            broadcastToAll(ctx.getSource(), "Randomizer started.");
-                            return 1;
-                        }))
-                .then(Commands.literal("pause")
-                        .executes(ctx -> {
-                            RandomizerManager.State state = randomizerManager.getState();
-                            if (state != RandomizerManager.State.RUNNING) {
-                                ctx.getSource().sendFailure(
-                                        Component.empty()
-                                                .append(Randomizer.randomizerPrefix())
-                                                .append(Component.literal("cannot be paused because it is not running."))
-                                );
-                                return 0;
-                            }
-                            randomizerManager.pause();
-                            RandomizerNetwork.sendHudActionToAllPlayers(RandomizerHudPayload.Action.PAUSE);
-                            broadcastToAll(ctx.getSource(), "Randomizer paused.");
-                            return 1;
-                        }))
+        dispatcher.register(
+                Commands.literal("randomizer")
+                        .requires(source -> source.hasPermission(2))
 
-                .then(Commands.literal("stop")
-                        .executes(ctx -> {
-                            RandomizerManager.State state = randomizerManager.getState();
-                            if (state == RandomizerManager.State.STOPPED) {
-                                ctx.getSource().sendFailure(
-                                        Component.empty()
-                                                .append(Randomizer.randomizerPrefix())
-                                                .append(Component.literal("is already stopped."))
-                                );
-                                return 0;
-                            }
-                            randomizerManager.stop();
-                            RandomizerNetwork.sendHudActionToAllPlayers(RandomizerHudPayload.Action.STOP);
-                            broadcastToAll(ctx.getSource(), "Randomizer stopped and timer reset.");
-
-                            return 1;
-                        }))
-                .then(Commands.literal("status")
-                        .executes(ctx -> {
-                            String status = randomizerManager.getStatusString();
-                            ctx.getSource().sendSuccess(
-                                    () -> Component.empty()
-                                            .append(Randomizer.randomizerPrefix())
-                                            .append(Component.literal(status)),
-                                    false
-                            );
-
-                            return 1;
-                        }))
-
-                .then(Commands.literal("manual")
-                        // /randomizer manual -> self
-                        .executes(ctx -> {
-                            ServerPlayer self = ctx.getSource().getPlayerOrException();
-                            Randomizer.MANAGER.triggerManualEventForPlayer(self);
-
-                            ctx.getSource().sendSuccess(
-                                    () -> Component.empty()
-                                            .append(Randomizer.randomizerPrefix())
-                                            .append(Component.literal("Triggered a manual event for you.")),
-                                    false
-                            );
-                            return 1;
-                        })
-                        // /randomizer manual <targets> -> Name, @a, @p, etc.
-                        .then(Commands.argument("targets", EntityArgument.players())
+                        .then(Commands.literal("start")
                                 .executes(ctx -> {
-                                    Collection<ServerPlayer> targets;
-                                    try {
-                                        targets = EntityArgument.getPlayers(ctx, "targets");
-                                    } catch (Exception e) {
+                                    RandomizerManager manager = RandomizerManager.INSTANCE;
+                                    var state = manager.getState();
+                                    if (state == RandomizerManager.State.RUNNING) {
                                         ctx.getSource().sendFailure(
                                                 Component.empty()
                                                         .append(Randomizer.randomizerPrefix())
-                                                        .append(Component.literal("No valid player targets found."))
+                                                        .append(Component.literal("is already running."))
                                         );
                                         return 0;
                                     }
-
-                                    if (targets.isEmpty()) {
-                                        ctx.getSource().sendFailure(
-                                                Component.empty()
-                                                        .append(Randomizer.randomizerPrefix())
-                                                        .append(Component.literal("No players matched the given selector."))
-                                        );
-                                        return 0;
-                                    }
-
-                                    int count = 0;
-                                    for (ServerPlayer p : targets) {
-                                        try {
-                                            Randomizer.MANAGER.triggerManualEventForPlayer(p);
-                                            count++;
-                                        } catch (Exception e) {
-                                            LOGGER.error("Manual event failed for player {}", p.getName().getString(), e);
-                                            ctx.getSource().sendFailure(
+                                    manager.start();
+                                    ctx.getSource().getServer().getPlayerList().getPlayers()
+                                            .forEach(p -> p.sendSystemMessage(
                                                     Component.empty()
                                                             .append(Randomizer.randomizerPrefix())
-                                                            .append(Component.literal("Manual event failed for " + p.getName().getString()))
-                                            );
-                                        }
-                                    }
+                                                            .append(Component.literal("started."))
+                                            ));
+                                    RandomizerNetwork.sendHudActionToAllPlayers(RandomizerHudPayload.Action.START);
+                                    return 1;
+                                }))
 
-                                    final int resultCount = count;
+                        .then(Commands.literal("pause")
+                                .executes(ctx -> {
+                                    RandomizerManager manager = RandomizerManager.INSTANCE;
+                                    manager.pause();
+                                    ctx.getSource().getServer().getPlayerList().getPlayers()
+                                            .forEach(p -> p.sendSystemMessage(
+                                                    Component.empty()
+                                                            .append(Randomizer.randomizerPrefix())
+                                                            .append(Component.literal("paused."))
+                                            ));
+                                    RandomizerNetwork.sendHudActionToAllPlayers(RandomizerHudPayload.Action.PAUSE);
+                                    return 1;
+                                }))
 
+                        .then(Commands.literal("stop")
+                                .executes(ctx -> {
+                                    RandomizerManager manager = RandomizerManager.INSTANCE;
+                                    manager.stop();
+                                    ctx.getSource().getServer().getPlayerList().getPlayers()
+                                            .forEach(p -> p.sendSystemMessage(
+                                                    Component.empty()
+                                                            .append(Randomizer.randomizerPrefix())
+                                                            .append(Component.literal("stopped."))
+                                            ));
+                                    RandomizerNetwork.sendHudActionToAllPlayers(RandomizerHudPayload.Action.STOP);
+                                    return 1;
+                                }))
+
+                        .then(Commands.literal("manual")
+                                .executes(ctx -> {
+                                    ServerPlayer self = ctx.getSource().getPlayerOrException();
+                                    RandomizerManager.INSTANCE.triggerManualEventForPlayer(self);
                                     ctx.getSource().sendSuccess(
                                             () -> Component.empty()
                                                     .append(Randomizer.randomizerPrefix())
-                                                    .append(Component.literal("Triggered manual events for " + resultCount + " player(s).")),
+                                                    .append(Component.literal("Triggered a manual event for you.")),
                                             false
                                     );
-
-                                    return resultCount;
+                                    return 1;
                                 })
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .executes(ctx -> {
+                                            Collection<ServerPlayer> targets = EntityArgument.getPlayers(ctx, "targets");
+                                            int count = 0;
+                                            for (ServerPlayer p : targets) {
+                                                RandomizerManager.INSTANCE.triggerManualEventForPlayer(p);
+                                                count++;
+                                            }
+                                            final int resultCount = count;
+                                            ctx.getSource().sendSuccess(
+                                                    () -> Component.empty()
+                                                            .append(Randomizer.randomizerPrefix())
+                                                            .append(Component.literal("Triggered manual events for " + resultCount + " player(s).")),
+                                                    false
+                                            );
+                                            return resultCount;
+                                        })
+                                )
                         )
-                )
         );
     }
 
@@ -225,14 +176,13 @@ public class Randomizer {
         }
 
         // Gleicher Manager wie bei Tick/Commands
-        RandomizerManager manager = this.randomizerManager;
+        RandomizerManager manager = RandomizerManager.INSTANCE;
+        RandomizerManager.State state = manager.getState();
+
         if (manager == null) {
             RandomizerNetwork.sendHudActionToPlayer(player, RandomizerHudPayload.Action.STOP);
             return;
         }
-
-        RandomizerManager.State state = manager.getState();
-
         // Wenn Randomizer nicht läuft → HUD aus
         if (state == RandomizerManager.State.STOPPED) {
             RandomizerNetwork.sendHudActionToPlayer(player, RandomizerHudPayload.Action.STOP);
