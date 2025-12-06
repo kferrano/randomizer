@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # <<< wichtig für git diff HEAD^ HEAD
 
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
@@ -31,6 +33,45 @@ jobs:
 
           echo "Gefundene Dateien:"
           cat repo_files.txt || echo "Keine Dateien gefunden."
+
+      - name: Detect changed source files
+        run: |
+          set -e
+
+          # Wenn nur ein Commit vorhanden ist (z.B. erster Lauf),
+          # behandeln wir alle gefundenen Dateien als "geändert".
+          if [ "$(git rev-list --count HEAD)" -le 1 ]; then
+            echo "Erster Lauf oder nur ein Commit – alle Dateien aus repo_files.txt als geändert markieren."
+            cp repo_files.txt changed_files.txt
+            cat changed_files.txt
+            exit 0
+          fi
+
+          # Dateien, die sich seit dem letzten Commit geändert haben
+          CHANGED=$(git diff --name-only HEAD^ HEAD || true)
+
+          echo "Alle geänderten Dateien im letzten Commit:"
+          echo "$CHANGED"
+
+          # Nur Dateien aus src, die auch in repo_files.txt stehen
+          : > changed_files.txt
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+
+            # Nur src-Dateien, die im Repo-File-Set sind
+            if echo "$file" | grep -q '^src/'; then
+              if grep -qx "$file" repo_files.txt 2>/dev/null; then
+                echo "$file" >> changed_files.txt
+              fi
+            fi
+          done <<< "$CHANGED"
+
+          echo "Relevante geänderte Dateien:"
+          if [ -s changed_files.txt ]; then
+            cat changed_files.txt
+          else
+            echo "Keine relevanten Änderungen."
+          fi
 
       - name: Read existing Gist files
         env:
@@ -59,17 +100,20 @@ jobs:
           fi
           echo "GH_TOKEN Länge: ${#GH_TOKEN}"
 
-      - name: Update or create files in Gist
+      - name: Update or create files in Gist (only changed)
         env:
           GIST_ID: 3031e418dacabb4f9a25206969b4a483
           GH_TOKEN: ${{ secrets.GIST_TOKEN }}
         run: |
           set -e
 
-          if [ ! -s repo_files.txt ]; then
-            echo "Keine Repo-Dateien gefunden, überspringe Update-Schritt."
+          if [ ! -s changed_files.txt ]; then
+            echo "Keine geänderten Dateien – überspringe Update-Schritt."
             exit 0
           fi
+
+          echo "Synchronisiere nur geänderte Dateien:"
+          cat changed_files.txt
 
           while IFS= read -r file; do
             [ -z "$file" ] && continue
@@ -122,7 +166,7 @@ jobs:
             # Kleine Pause zwischen Dateien
             sleep 1
 
-          done < repo_files.txt
+          done < changed_files.txt
 
       - name: Delete files that no longer exist in repo
         env:
