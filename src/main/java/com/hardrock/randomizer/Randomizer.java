@@ -33,12 +33,14 @@ public class Randomizer {
 
     public static final String MOD_ID = "randomizer";
     private static final Logger LOGGER = LogUtils.getLogger();
-    private final RandomizerManager randomizerManager = new RandomizerManager();
+    private final RandomizerManager randomizerManager;
     public static RandomizerManager MANAGER;
 
 
     public Randomizer(IEventBus modEventBus, ModContainer modContainer) {
-        MANAGER = new RandomizerManager();
+        this.randomizerManager = new RandomizerManager();
+        MANAGER = this.randomizerManager;
+        RandomizerManager.INSTANCE = this.randomizerManager;
 
         LOGGER.info("Randomizer mod initializing.");
         NeoForge.EVENT_BUS.addListener(this::onServerTick);
