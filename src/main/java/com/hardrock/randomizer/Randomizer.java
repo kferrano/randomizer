@@ -30,7 +30,7 @@ import java.util.Collection;
 
 @Mod(Randomizer.MOD_ID)
 public class Randomizer {
-//jaööp
+
     public static final String MOD_ID = "randomizer";
     private static final Logger LOGGER = LogUtils.getLogger();
     public static RandomizerManager MANAGER;
