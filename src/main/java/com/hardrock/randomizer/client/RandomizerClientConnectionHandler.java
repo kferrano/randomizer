@@ -22,6 +22,4 @@ public class RandomizerClientConnectionHandler {
         // Reset HUD + Timer komplett
         RandomizerHud.stop();
     }
-
-
 }

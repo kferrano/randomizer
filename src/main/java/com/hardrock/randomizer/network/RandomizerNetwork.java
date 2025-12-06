@@ -2,6 +2,7 @@ package com.hardrock.randomizer.network;
 
 import com.hardrock.randomizer.Randomizer;
 import com.hardrock.randomizer.RandomizerManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -32,7 +33,7 @@ public class RandomizerNetwork {
 
         // Bossbar
         registrar.playToServer(RandomizerBossbarPreferencePayload.TYPE, RandomizerBossbarPreferencePayload.STREAM_CODEC, (payload, ctx) -> {
-            ctx.workHandler().execute(() -> {
+            ctx.enqueueWork(() -> {
                 if (ctx.player() instanceof ServerPlayer player) {
                     RandomizerManager.INSTANCE.setBossbarPreference(player, payload.disableBossbar());
                 }
@@ -40,9 +41,12 @@ public class RandomizerNetwork {
         });
     }
 
-    public static void sendBossbarPreferenceToPlayer(ServerPlayer player, boolean disableBossbar) {
-        PacketDistributor.sendToServer(new RandomizerBossbarPreferencePayload(disableBossbar));
+    public static void sendBossbarPreferenceToServer(boolean disableBossbar) {
+        if (Minecraft.getInstance().getConnection() != null) {
+            Minecraft.getInstance().getConnection().send(new RandomizerBossbarPreferencePayload(disableBossbar));
+        }
     }
+
 
     // HUD-Steuerung (hast du schon)
     public static void sendHudActionToAllPlayers(RandomizerHudPayload.Action action) {

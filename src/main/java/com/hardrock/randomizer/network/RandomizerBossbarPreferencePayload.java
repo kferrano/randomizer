@@ -20,6 +20,7 @@ public record RandomizerBossbarPreferencePayload(boolean disableBossbar)
                     RandomizerBossbarPreferencePayload::new
             );
 
+
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
