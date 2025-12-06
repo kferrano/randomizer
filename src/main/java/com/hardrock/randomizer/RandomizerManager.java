@@ -85,6 +85,7 @@ public class RandomizerManager {
         }
     }
 
+
     public void updateDelayFromConfig() {
         int seconds = RandomizerConfig.COMMON.delaySeconds.get();
         if (seconds < 5) seconds = 5;

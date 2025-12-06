@@ -17,6 +17,7 @@ public class RandomizerClientConnectionHandler {
         RandomizerNetwork.sendBossbarPreferenceToServer(disable);
     }
 
+
     @SubscribeEvent
     public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {
         // Reset HUD + Timer komplett

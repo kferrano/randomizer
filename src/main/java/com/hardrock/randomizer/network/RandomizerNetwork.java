@@ -41,6 +41,7 @@ public class RandomizerNetwork {
         });
     }
 
+
     public static void sendBossbarPreferenceToServer(boolean disableBossbar) {
         if (Minecraft.getInstance().getConnection() != null) {
             Minecraft.getInstance().getConnection().send(new RandomizerBossbarPreferencePayload(disableBossbar));
