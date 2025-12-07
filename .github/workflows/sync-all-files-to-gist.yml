@@ -31,13 +31,19 @@ jobs:
               -o -name '*.lang' \
             \) > repo_files.txt
 
-          # Zusätzlich: wichtige Root-Dokumente
-          if [ -f "roadmap.md" ]; then
-            echo "roadmap.md" >> repo_files.txt
-          fi
-          if [ -f "todo.md" ]; then
-            echo "todo.md" >> repo_files.txt
-          fi
+          # Zusätzlich: wichtige Root-Dokumente (Case-insensitive)
+          for name in "roadmap.md" "Roadmap.md" "ROADMAP.md"; do
+            if [ -f "$name" ]; then
+              echo "$name" >> repo_files.txt
+            fi
+          done
+          
+          for name in "todo.md" "TODO.md" "Todo.md"; do
+            if [ -f "$name" ]; then
+              echo "$name" >> repo_files.txt
+            fi
+          done
+
 
           echo "Gefundene Dateien:"
           cat repo_files.txt || echo "Keine Dateien gefunden."
