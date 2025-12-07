@@ -165,6 +165,14 @@ jobs:
             cat repo_files.txt >> to_sync.txt
           fi
 
+          # *** WICHTIG: roadmap.md und todo.md IMMER synchronisieren, wenn vorhanden ***
+          if grep -qx "roadmap.md" repo_files.txt 2>/dev/null && [ -f "roadmap.md" ]; then
+            echo "roadmap.md" >> to_sync.txt
+          fi
+          if grep -qx "todo.md" repo_files.txt 2>/dev/null && [ -f "todo.md" ]; then
+            echo "todo.md" >> to_sync.txt
+          fi
+
           # Duplikate entfernen
           sort -u to_sync.txt -o to_sync.txt
 
