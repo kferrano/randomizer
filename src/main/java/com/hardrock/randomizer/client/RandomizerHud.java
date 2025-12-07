@@ -31,6 +31,7 @@ public class RandomizerHud {
         state = HudState.RUNNING;
     }
 
+
     // Wird bei /randomizer pause aufgerufen
     public static void pause() {
         if (state == HudState.RUNNING) {
