@@ -66,3 +66,5 @@ Once completed, they will be moved to the roadmap “Completed” section.)*
 - Completed tasks should be moved to `ROADMAP.md` under “Completed”.
 - New ideas should go into the roadmap, **not** this file.
 
+ (*(This file is used for planning and tracking.  
+It is not intended to be a detailed changelog.)*)

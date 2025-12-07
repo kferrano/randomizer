@@ -96,3 +96,5 @@ ChatGPT uses this file for context and future planning.)*
 - When new ideas come up, add them under the appropriate milestone.
 - Keep the list clean, structured and always up to date.
 
+ (*(This file is used for planning and prioritization.  
+It is not meant to be read by humans.)*)
