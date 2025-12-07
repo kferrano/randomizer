@@ -285,12 +285,12 @@ public class RandomizerConfig {
 
             disableBossbar = builder
                     .translation("randomizer.config.hud.disableBossbar")
-                    .comment("If true, the Randomizer Bossbar is completely disabled on this client.")
+                    .comment("If true, the Randomizer Bossbar is completely disabled on this client. Needed Reconnect to be effective.")
                     .define("disableBossbar", false);
             disableHud = builder
                     .translation("randomizer.config.hud.disableHud")
                     .comment("If true, the Randomizer HUD timer is completely disabled on this client.")
-                    .define("disableHud", false);
+                    .define("disableTimer", false);
 
             hudX = builder
                     .translation("randomizer.config.hud.hudX")

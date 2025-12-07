@@ -14,8 +14,11 @@
   "randomizer.config.category.hud": "HUD",
   "randomizer.config.category.hud.tooltip": "Randomizer timer HUD position and visibility.",
 
-  "randomizer.config.hud.disableHud": "Disable HUD",
+  "randomizer.config.hud.disableHud": "Disable Timer",
   "randomizer.config.hud.disableHud.tooltip": "If enabled, the Randomizer timer will not be displayed.",
+
+  "randomizer.config.hud.disableBossbar": "Disable Bossbar",
+  "randomizer.config.hud.disableBossbar.tooltip": "If enabled, the boss bar will not be displayed.",
 
   "randomizer.config.hud.hudX": "HUD Horizontal Position",
   "randomizer.config.hud.hudX.tooltip": "Controls where the timer is displayed horizontally on your screen.",
@@ -31,6 +34,13 @@
 
   "randomizer.config.display.showHudWithBossbar": "Show HUD with Bossbar",
   "randomizer.config.display.showHudWithBossbar.tooltip": "If disabled, only the boss bar is used and the HUD timer text is hidden.",
+
+  "randomizer.config.category.admin": "Admin",
+  "randomizer.config.category.admin.tooltip": "Advanced settings for the Randomizer.",
+
+  "randomizer.config.admin.allowManualWhenStopped": "Allow Manual Control When Stopped",
+  "randomizer.config.admin.allowManualWhenStopped.tooltip": "If enabled, the Randomizer can be controlled manually even when stopped.",
+
 
 
   "randomizer.config.general.delaySeconds": "Delay Between Events",
