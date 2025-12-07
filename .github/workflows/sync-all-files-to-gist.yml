@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2  # <<< wichtig für git diff HEAD^ HEAD
+          fetch-depth: 2  # wichtig für git diff BEFORE/AFTER
 
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
@@ -46,15 +46,12 @@ jobs:
         run: |
           set -e
 
-          # SHA vor dem Push und aktueller SHA
           BEFORE_SHA="${{ github.event.before }}"
           AFTER_SHA="${{ github.sha }}"
 
           echo "Vorheriger SHA: $BEFORE_SHA"
           echo "Aktueller SHA:  $AFTER_SHA"
 
-          # Wenn BEFORE_SHA eine Null-SHA ist (z.B. erster Push auf Branch),
-          # dann behandeln wir alle Dateien aus repo_files.txt als geändert.
           if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
             echo "Erster Push auf diesen Branch – markiere alle Dateien als geändert."
             cp repo_files.txt changed_files.txt
@@ -62,7 +59,6 @@ jobs:
             exit 0
           fi
 
-          # Alle geänderten Dateien im aktuellen Push
           CHANGED=$(git diff --name-only "$BEFORE_SHA" "$AFTER_SHA" || true)
 
           echo "Alle geänderten Dateien im Push:"
@@ -70,9 +66,6 @@ jobs:
 
           : > changed_files.txt
 
-          # Nur Dateien übernehmen, die:
-          # 1) unter src/ liegen und in repo_files.txt geführt sind, oder
-          # 2) roadmap.md / todo.md sind und in repo_files.txt stehen
           while IFS= read -r file; do
             [ -z "$file" ] && continue
 
@@ -100,7 +93,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GIST_TOKEN }}
         run: |
           set -e
-          # Liste der vorhandenen Dateien im Gist holen (kann leer sein)
           curl -s \
             -H "Authorization: Bearer $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
@@ -128,13 +120,11 @@ jobs:
         run: |
           set -e
 
-          # Falls keine repo_files.txt existiert, abbrechen
           if [ ! -s repo_files.txt ]; then
             echo "Keine Repo-Dateien gefunden, überspringe Update-Schritt."
             exit 0
           fi
 
-          # Basis: geänderte Dateien
           : > to_sync.txt
           if [ -s changed_files.txt ]; then
             echo "Geänderte Dateien:"
@@ -144,17 +134,11 @@ jobs:
             echo "Keine geänderten Dateien im aktuellen Push."
           fi
 
-          # Zusätzliche Dateien: existieren im Repo, aber noch nicht im Gist
-          # -> müssen einmalig hochgeladen werden (Backfill)
           if [ -s existing_gist_files.txt ]; then
             echo "Prüfe auf fehlende Dateien im Gist..."
             while IFS= read -r file; do
               [ -z "$file" ] && continue
-
-              # Gist-Name wie im Rest: "/" -> "__"
               gist_name=$(echo "$file" | sed 's|/|__|g')
-
-              # Wenn diese Gist-Datei noch NICHT existiert, hinzufügen
               if ! grep -qx "$gist_name" existing_gist_files.txt 2>/dev/null; then
                 echo "Datei fehlt im Gist, wird hinzugefügt: $file"
                 echo "$file" >> to_sync.txt
@@ -165,7 +149,7 @@ jobs:
             cat repo_files.txt >> to_sync.txt
           fi
 
-          # *** WICHTIG: roadmap.md und todo.md IMMER synchronisieren, wenn vorhanden ***
+          # roadmap.md & todo.md: immer syncen, wenn sie existieren
           if grep -qx "roadmap.md" repo_files.txt 2>/dev/null && [ -f "roadmap.md" ]; then
             echo "roadmap.md" >> to_sync.txt
           fi
@@ -173,7 +157,6 @@ jobs:
             echo "todo.md" >> to_sync.txt
           fi
 
-          # Duplikate entfernen
           sort -u to_sync.txt -o to_sync.txt
 
           if [ ! -s to_sync.txt ]; then
@@ -239,13 +222,12 @@ jobs:
       - name: Delete files that no longer exist in repo
         env:
           GIST_ID: 3031e418dacabb4f9a25206969b4a483
-          GH_TOKEN: ${{ secrets.GIST_TOKEN }}
+        GH_TOKEN: ${{ secrets.GIST_TOKEN }}
         run: |
           set -e
 
           [ ! -f existing_gist_files.txt ] && exit 0
 
-          # Neue Gist-Dateinamen = gleiche Transformation wie oben: "/" -> "__"
           sed 's|/|__|g' repo_files.txt > new_gist_files.txt || touch new_gist_files.txt
 
           echo "Neue Gist-Dateinamen (aus Repo abgeleitet):"
@@ -254,7 +236,6 @@ jobs:
           while IFS= read -r old_name; do
             [ -z "$old_name" ] && continue
 
-            # Wenn old_name NICHT in new_gist_files.txt vorkommt → löschen
             if ! grep -qx "$old_name" new_gist_files.txt 2>/dev/null; then
               echo "Lösche aus Gist (nicht mehr im Repo): $old_name"
 
