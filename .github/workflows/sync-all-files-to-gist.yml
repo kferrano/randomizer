@@ -31,6 +31,14 @@ jobs:
               -o -name '*.lang' \
             \) > repo_files.txt
 
+          # Zusätzlich: wichtige Root-Dokumente
+          if [ -f "roadmap.md" ]; then
+            echo "roadmap.md" >> repo_files.txt
+          fi
+          if [ -f "todo.md" ]; then
+            echo "todo.md" >> repo_files.txt
+          fi
+
           echo "Gefundene Dateien:"
           cat repo_files.txt || echo "Keine Dateien gefunden."
 
@@ -63,12 +71,16 @@ jobs:
           : > changed_files.txt
 
           # Nur Dateien übernehmen, die:
-          # 1) unter src/ liegen
-          # 2) auch in repo_files.txt gelistet sind (also von deinem find-Filter erfasst)
+          # 1) unter src/ liegen und in repo_files.txt geführt sind, oder
+          # 2) roadmap.md / todo.md sind und in repo_files.txt stehen
           while IFS= read -r file; do
             [ -z "$file" ] && continue
 
             if echo "$file" | grep -q '^src/'; then
+              if grep -qx "$file" repo_files.txt 2>/dev/null; then
+                echo "$file" >> changed_files.txt
+              fi
+            elif [ "$file" = "roadmap.md" ] || [ "$file" = "todo.md" ]; then
               if grep -qx "$file" repo_files.txt 2>/dev/null; then
                 echo "$file" >> changed_files.txt
               fi
@@ -81,7 +93,6 @@ jobs:
           else
             echo "Keine relevanten Änderungen."
           fi
-
 
       - name: Read existing Gist files
         env:
@@ -169,7 +180,7 @@ jobs:
             [ -z "$file" ] && continue
             if [ ! -f "$file" ]; then
               echo "Überspringe (kein reguläres File): $file"
-              continue;
+              continue
             fi
 
             gist_name=$(echo "$file" | sed 's|/|__|g')
@@ -216,7 +227,6 @@ jobs:
             sleep 1
 
           done < to_sync.txt
-
 
       - name: Delete files that no longer exist in repo
         env:
