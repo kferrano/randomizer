@@ -54,9 +54,6 @@ ChatGPT uses this file for context and future planning.)*
 # ✨ 1.1.0 – Visual & QoL Update
 
 ## Presentation Improvements
-- Wheel-of-Fortune animation (optional)
-- Sound effects on event trigger (optional)
-- Event preview: “In 5s spawns…”
 - Better HUD/Bossbar feedback
 
 ---
@@ -87,6 +84,8 @@ ChatGPT uses this file for context and future planning.)*
 - Custom Event Editor (Ingame GUI)
 - Event scripting (if event A then event B)
 - World-scale anomalies (meteors, raids, structures, chaos events)
+- Wheel-of-Fortune animation (optional)
+- Sound effects on event trigger (optional)
 
 ---
 
