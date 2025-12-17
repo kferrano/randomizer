@@ -378,6 +378,13 @@ public class RandomPools {
         if (entry == null && tier != RarityTier.COMMON) {
             entry = weightedEffect(random, RarityTier.COMMON);
         }
+        if (RandomizerConfig.COMMON.enableDebugLogging.get()) {
+            if (entry == null) {
+                LOGGER.info("[DBG] Effect pick failed: tier={} (fallback attempted).", tier);
+            } else if (tier != entry.tier()) {
+                LOGGER.info("[DBG] Effect pick fallback: wantedTier={} -> pickedTier={}", tier, entry.tier());
+            }
+        }
         if (entry == null) return null;
 
         var optHolder = BuiltInRegistries.MOB_EFFECT.get(entry.id());
@@ -469,6 +476,13 @@ public class RandomPools {
         MobEntry entry = weightedMob(random, tier);
         if (entry == null && tier != RarityTier.COMMON) {
             entry = weightedMob(random, RarityTier.COMMON);
+        }
+        if (RandomizerConfig.COMMON.enableDebugLogging.get()) {
+            if (entry == null) {
+                LOGGER.info("[DBG] Mob pick failed: tier={} (fallback attempted).", tier);
+            } else if (tier != entry.tier()) {
+                LOGGER.info("[DBG] Mob pick fallback: wantedTier={} -> pickedTier={}", tier, entry.tier());
+            }
         }
         if (entry == null) return null;
 
@@ -590,6 +604,13 @@ public class RandomPools {
         ItemEntry entry = weightedItem(random, tier);
         if (entry == null && tier != RarityTier.COMMON) {
             entry = weightedItem(random, RarityTier.COMMON);
+        }
+        if (RandomizerConfig.COMMON.enableDebugLogging.get()) {
+            if (entry == null) {
+                LOGGER.info("[DBG] Item pick failed: tier={} (fallback attempted).", tier);
+            } else if (tier != entry.tier()) {
+                LOGGER.info("[DBG] Item pick fallback: wantedTier={} -> pickedTier={}", tier, entry.tier());
+            }
         }
         if (entry == null) return null;
 

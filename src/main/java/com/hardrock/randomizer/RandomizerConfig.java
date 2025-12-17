@@ -103,6 +103,8 @@ public class RandomizerConfig {
 
         // Admin-Modus
         public final ModConfigSpec.BooleanValue allowManualWhenStopped;
+        public final ModConfigSpec.BooleanValue enableDebugLogging;
+
 
         public Common(ModConfigSpec.Builder builder) {
 
@@ -340,7 +342,10 @@ public class RandomizerConfig {
 
             allowManualWhenStopped = builder
                     .define("allowManualWhenStopped", true);
-
+            enableDebugLogging = builder
+                    .translation("randomizer.config.logging.enableDebugLogging")
+                    .comment("If true, enables verbose debug logging for pool selection, fallbacks and spawn retries.")
+                    .define("enableDebugLogging", false);
             builder.pop();
 
             builder.push("tiers");

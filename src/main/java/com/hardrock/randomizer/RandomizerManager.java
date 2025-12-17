@@ -278,13 +278,23 @@ public class RandomizerManager {
         tickCounter = 0;
 
         List<ServerPlayer> players = server.getPlayerList().getPlayers();
-        if (players.isEmpty()) return;
-
+        if (players.isEmpty()) {
+            debugLog("Auto event aborted: no players online.");
+            return;
+        }
         ServerPlayer target = players.get(random.nextInt(players.size()));
-        if (target == null || !target.isAlive() || target.isRemoved()) return;
+        if (target == null || !target.isAlive() || target.isRemoved()) {
+            debugLog("Auto event aborted: invalid target (alive={}, removed={}).",
+                    target != null && target.isAlive(),
+                    target != null && target.isRemoved());
+            return;
+        }
 
         RandomPools.EventType type = pools.chooseEventType(random);
-        if (type == null) return;
+        if (type == null) {
+            debugLog("Auto event aborted: no event type available (all pools empty/disabled).");
+            return;
+        }
 
         String resultText = null;
         try {
@@ -298,14 +308,16 @@ public class RandomizerManager {
             return;
         }
 
-        if (resultText == null || resultText.isEmpty()) return;
-        final String text = resultText;
+        if (resultText == null || resultText.isEmpty()) {
+            debugLog("Auto event produced empty result: type={}, target={}", type, target.getName().getString());
+            return;
+        }        final String text = resultText;
         long gameTime = target.level().getGameTime();
 
         sendTargetingFeedback(players, target, type, text, false, gameTime);
 
         LOGGER.info(
-                "Randomizer event triggered: type={}, player={}, info={}",
+                "Auto randomizer event: type={}, target={}, info={}",
                 type, target.getName().getString(), text
         );
     }
@@ -360,7 +372,13 @@ public class RandomizerManager {
                 type, target.getName().getString(), text
         );
     }
+    private static boolean debug() {
+        return RandomizerConfig.COMMON.enableDebugLogging.get();
+    }
 
+    private static void debugLog(String msg, Object... args) {
+        if (debug()) LOGGER.info("[DBG] " + msg, args);
+    }
 }
 
 
