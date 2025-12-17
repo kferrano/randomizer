@@ -8,7 +8,9 @@ public record EffectEntry (
         int amplifier,
         int durationTicks,
         int weight,
-        EffectType type
+        EffectType type,
+        RarityTier tier
+
 ) {
     public enum EffectType { BUFF, DEBUFF }
 }

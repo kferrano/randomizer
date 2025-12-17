@@ -3,12 +3,14 @@ package com.hardrock.randomizer;
 import com.hardrock.randomizer.data.EffectEntry;
 import com.hardrock.randomizer.data.ItemEntry;
 import com.hardrock.randomizer.data.MobEntry;
+import com.hardrock.randomizer.data.RarityTier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -76,7 +78,8 @@ public class RandomPools {
                 5,
                 10,
                 10,
-                MobEntry.MobType.HOSTILE
+                MobEntry.MobType.HOSTILE,
+                RarityTier.EXTREME
         ));
     }
 
@@ -111,7 +114,8 @@ public class RandomPools {
                     maxAmplifier,
                     baseDuration,
                     weight,
-                    beneficial ? EffectEntry.EffectType.BUFF : EffectEntry.EffectType.DEBUFF
+                    beneficial ? EffectEntry.EffectType.BUFF : EffectEntry.EffectType.DEBUFF,
+                    RarityTier.EXTREME
             ));
         }
     }
@@ -153,13 +157,15 @@ public class RandomPools {
                     ? RandomizerConfig.COMMON.baseHostileRadius.get()
                     : RandomizerConfig.COMMON.basePassiveRadius.get();
             int weight = isHostile ? 4 : 2;
+            RarityTier tier = isHostile ? RarityTier.RARE : RarityTier.COMMON;
 
             mobs.add(new MobEntry(
                     id,
                     count,
                     radius,
                     weight,
-                    poolType
+                    poolType,
+                    tier
             ));
         }
     }
@@ -197,7 +203,9 @@ public class RandomPools {
             items.add(new ItemEntry(
                     id,
                     count,
-                    weight
+                    weight,
+                    RarityTier.EXTREME
+
             ));
         }
     }
@@ -235,16 +243,34 @@ public class RandomPools {
     }
 
 
+
     // =====================================================================================
     // Effekte
     // =====================================================================================
+    private static RarityTier chooseEffectTier(Random random) {
+        int common = RandomizerConfig.COMMON.effectTierCommon.get();
+        int rare = RandomizerConfig.COMMON.effectTierRare.get();
+        int extreme = RandomizerConfig.COMMON.effectTierExtreme.get();
+
+        int total = common + rare + extreme;
+        if (total <= 0) return RarityTier.COMMON;
+
+        int roll = random.nextInt(total);
+        if (roll < common) return RarityTier.COMMON;
+        roll -= common;
+        if (roll < rare) return RarityTier.RARE;
+        return RarityTier.EXTREME;
+    }
 
     public String applyRandomEffect(ServerPlayer player, Random random) {
         ensureInitialized();
 
         if (effects.isEmpty()) return null;
-
-        EffectEntry entry = weightedEffect(random);
+        RarityTier tier = chooseEffectTier(random);
+        EffectEntry entry = weightedEffect(random, tier);
+        if (entry == null && tier != RarityTier.COMMON) {
+            entry = weightedEffect(random, RarityTier.COMMON);
+        }
         if (entry == null) return null;
 
         var optHolder = BuiltInRegistries.MOB_EFFECT.get(entry.id());
@@ -287,15 +313,17 @@ public class RandomPools {
     }
 
 
-    private EffectEntry weightedEffect(Random random) {
+    private EffectEntry weightedEffect(Random random, RarityTier tier) {
         int totalWeight = 0;
         for (EffectEntry e : effects) {
+            if (e.tier() != tier) continue;
             totalWeight += e.weight();
         }
         if (totalWeight <= 0) return null;
 
         int roll = random.nextInt(totalWeight);
         for (EffectEntry e : effects) {
+            if (e.tier() != tier) continue;
             roll -= e.weight();
             if (roll < 0) {
                 return e;
@@ -308,12 +336,33 @@ public class RandomPools {
     // Mobs
     // =====================================================================================
 
-    public String spawnRandomMob(ServerPlayer player, Random random) {
+    private RarityTier chooseMobTier(Random random) {
+        // Diese 3 Config-Werte musst du in RandomizerConfig ergänzen (pro Pool).
+        int wCommon = RandomizerConfig.COMMON.mobTierCommon.get();
+        int wRare = RandomizerConfig.COMMON.mobTierRare.get();
+        int wExtreme = RandomizerConfig.COMMON.mobTierExtreme.get();
+
+        int total = wCommon + wRare + wExtreme;
+        if (total <= 0) return RarityTier.COMMON;
+
+        int roll = random.nextInt(total);
+        if (roll < wCommon) return RarityTier.COMMON;
+        roll -= wCommon;
+
+        if (roll < wRare) return RarityTier.RARE;
+        return RarityTier.EXTREME;
+    }
+
+   public String spawnRandomMob(ServerPlayer player, Random random) {
         ensureInitialized();
 
         if (mobs.isEmpty()) return null;
 
-        MobEntry entry = weightedMob(random);
+        RarityTier tier = chooseMobTier(random);
+        MobEntry entry = weightedMob(random, tier);
+        if (entry == null && tier != RarityTier.COMMON) {
+            entry = weightedMob(random, RarityTier.COMMON);
+        }
         if (entry == null) return null;
 
         if (!(player.level() instanceof ServerLevel level)) return null;
@@ -392,19 +441,16 @@ public class RandomPools {
     }
 
 
-    private MobEntry weightedMob(Random random) {
+    private MobEntry weightedMob(Random random, RarityTier tier) {
         int totalWeight = 0;
-        for (MobEntry e : mobs) {
-            totalWeight += e.weight();
-        }
+        for (MobEntry e : mobs) totalWeight += e.weight();
+
         if (totalWeight <= 0) return null;
 
         int roll = random.nextInt(totalWeight);
         for (MobEntry e : mobs) {
             roll -= e.weight();
-            if (roll < 0) {
-                return e;
-            }
+            if (roll < 0) return e;
         }
         return null;
     }
@@ -413,12 +459,32 @@ public class RandomPools {
     // Items
     // =====================================================================================
 
+    private static RarityTier chooseItemTier(Random random) {
+        int common = RandomizerConfig.COMMON.itemTierCommon.get();
+        int rare = RandomizerConfig.COMMON.itemTierRare.get();
+        int extreme = RandomizerConfig.COMMON.itemTierExtreme.get();
+
+        int total = common + rare + extreme;
+        if (total <= 0) return RarityTier.COMMON;
+
+        int roll = random.nextInt(total);
+        if (roll < common) return RarityTier.COMMON;
+        roll -= common;
+        if (roll < rare) return RarityTier.RARE;
+        return RarityTier.EXTREME;
+    }
+
+
     public String giveRandomItem(ServerPlayer player, Random random) {
         ensureInitialized();
 
         if (items.isEmpty()) return null;
+        RarityTier tier = chooseItemTier(random);
 
-        ItemEntry entry = weightedItem(random);
+        ItemEntry entry = weightedItem(random, tier);
+        if (entry == null && tier != RarityTier.COMMON) {
+            entry = weightedItem(random, RarityTier.COMMON);
+        }
         if (entry == null) return null;
 
         var optItemHolder = BuiltInRegistries.ITEM.get(entry.id());
@@ -452,15 +518,17 @@ public class RandomPools {
     }
 
 
-    private ItemEntry weightedItem(Random random) {
+    private ItemEntry weightedItem(Random random, RarityTier tier) {
         int totalWeight = 0;
         for (ItemEntry e : items) {
+            if (e.tier() != tier) continue;
             totalWeight += e.weight();
         }
         if (totalWeight <= 0) return null;
 
         int roll = random.nextInt(totalWeight);
         for (ItemEntry e : items) {
+            if (e.tier() != tier) continue;
             roll -= e.weight();
             if (roll < 0) {
                 return e;

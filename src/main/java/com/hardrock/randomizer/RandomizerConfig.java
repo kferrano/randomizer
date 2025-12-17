@@ -40,6 +40,22 @@ public class RandomizerConfig {
         public final ModConfigSpec.IntValue weightMobs;
         public final ModConfigSpec.IntValue weightItems;
 
+        // === Tier Weights: ITEMS ===
+        public final ModConfigSpec.IntValue itemTierCommon;
+        public final ModConfigSpec.IntValue itemTierRare;
+        public final ModConfigSpec.IntValue itemTierExtreme;
+
+        // === Tier Weights: EFFECTS ===
+        public final ModConfigSpec.IntValue effectTierCommon;
+        public final ModConfigSpec.IntValue effectTierRare;
+        public final ModConfigSpec.IntValue effectTierExtreme;
+
+        // === Tier Weights: MOBS ===
+        public final ModConfigSpec.IntValue mobTierCommon;
+        public final ModConfigSpec.IntValue mobTierRare;
+        public final ModConfigSpec.IntValue mobTierExtreme;
+
+
         // --- Balancing / Filter ---
 
         // Nur Vanilla-Content?
@@ -74,6 +90,19 @@ public class RandomizerConfig {
 
         // Admin-Modus
         public final ModConfigSpec.BooleanValue allowManualWhenStopped;
+
+
+        public static class TierWeights {
+            public final ModConfigSpec.IntValue common;
+            public final ModConfigSpec.IntValue rare;
+            public final ModConfigSpec.IntValue extreme;
+
+            TierWeights(ModConfigSpec.Builder builder, int c, int r, int e) {
+                common = builder.defineInRange("common", c, 0, 10000);
+                rare = builder.defineInRange("rare", r, 0, 10000);
+                extreme = builder.defineInRange("extreme", e, 0, 10000);
+            }
+        }
 
         public Common(ModConfigSpec.Builder builder) {
 
@@ -267,8 +296,34 @@ public class RandomizerConfig {
                     .define("allowManualWhenStopped", true);
 
             builder.pop();
+
+            builder.push("tiers");
+
+// ---------- ITEM TIERS ----------
+            builder.push("items");
+            itemTierCommon = builder.defineInRange("common", 70, 0, 1000);
+            itemTierRare = builder.defineInRange("rare", 25, 0, 1000);
+            itemTierExtreme = builder.defineInRange("extreme", 5, 0, 1000);
+            builder.pop();
+
+// ---------- EFFECT TIERS ----------
+            builder.push("effects");
+            effectTierCommon = builder.defineInRange("common", 65, 0, 1000);
+            effectTierRare = builder.defineInRange("rare", 30, 0, 1000);
+            effectTierExtreme = builder.defineInRange("extreme", 5, 0, 1000);
+            builder.pop();
+
+// ---------- MOB TIERS ----------
+            builder.push("mobs");
+            mobTierCommon = builder.defineInRange("common", 60, 0, 1000);
+            mobTierRare = builder.defineInRange("rare", 30, 0, 1000);
+            mobTierExtreme = builder.defineInRange("extreme", 10, 0, 1000);
+            builder.pop();
+
+            builder.pop(); // tiers
         }
     }
+
 
     public static class Client {
 
