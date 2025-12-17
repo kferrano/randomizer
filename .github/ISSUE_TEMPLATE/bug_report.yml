@@ -10,6 +10,12 @@ body:
       value: |
         Thanks for reporting a bug.
         Please fill out the form as completely as possible.
+        
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ For general questions or setup help, please use our Discord:
+        https://discord.gg/YOUR_INVITE
 
   - type: input
     id: mod_version
