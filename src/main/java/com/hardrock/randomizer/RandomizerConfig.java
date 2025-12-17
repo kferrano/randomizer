@@ -91,19 +91,6 @@ public class RandomizerConfig {
         // Admin-Modus
         public final ModConfigSpec.BooleanValue allowManualWhenStopped;
 
-
-        public static class TierWeights {
-            public final ModConfigSpec.IntValue common;
-            public final ModConfigSpec.IntValue rare;
-            public final ModConfigSpec.IntValue extreme;
-
-            TierWeights(ModConfigSpec.Builder builder, int c, int r, int e) {
-                common = builder.defineInRange("common", c, 0, 10000);
-                rare = builder.defineInRange("rare", r, 0, 10000);
-                extreme = builder.defineInRange("extreme", e, 0, 10000);
-            }
-        }
-
         public Common(ModConfigSpec.Builder builder) {
 
             // ====================

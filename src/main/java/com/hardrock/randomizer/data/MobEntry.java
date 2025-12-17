@@ -1,7 +1,6 @@
 package com.hardrock.randomizer.data;
 
 import net.minecraft.resources.ResourceLocation;
-import com.hardrock.randomizer.data.RarityTier;
 
 public record MobEntry(
         ResourceLocation entityId,
