@@ -1,5 +1,6 @@
 package com.hardrock.randomizer;
 
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.List;
@@ -71,6 +72,11 @@ public class RandomizerConfig {
         public final ModConfigSpec.ConfigValue<List<? extends String>> effectBlacklist;
         public final ModConfigSpec.ConfigValue<List<? extends String>> mobBlacklist;
         public final ModConfigSpec.ConfigValue<List<? extends String>> itemBlacklist;
+
+        // Whitelists (String-Liste "namespace:path")
+        public final ModConfigSpec.ConfigValue<List<? extends String>> effectWhitelist;
+        public final ModConfigSpec.ConfigValue<List<? extends String>> mobWhitelist;
+        public final ModConfigSpec.ConfigValue<List<? extends String>> itemWhitelist;
 
         // --- Random-Ranges für Effekte ---
 
@@ -173,6 +179,37 @@ public class RandomizerConfig {
                     .translation("randomizer.common.content.enablePassiveMobs")
                     .comment("Allow non-hostile mobs (animals etc.).")
                     .define("enablePassiveMobs", true);
+
+            effectWhitelist = builder
+                    .translation("randomizer.common.content.effectWhitelist")
+                    .comment(
+                            "Whitelist of effect ids (e.g. \"minecraft:speed\").",
+                            "If not empty: ONLY whitelisted effects are allowed. Blacklist is ignored.")
+                    .defineList("effectWhitelist",
+                            List.of(),
+                            o -> o instanceof String s && ResourceLocation.tryParse(s) != null
+                    );
+
+            mobWhitelist = builder
+                    .translation("randomizer.common.content.mobWhitelist")
+                    .comment(
+                            "Whitelist of mob ids (e.g. \"minecraft:zombie\").",
+                            "If not empty: ONLY whitelisted mobs are allowed. Blacklist is ignored.")
+                    .defineList("mobWhitelist",
+                            List.of(),
+                            o -> o instanceof String s && ResourceLocation.tryParse(s) != null
+                    );
+
+            itemWhitelist = builder
+                    .translation("randomizer.common.content.itemWhitelist")
+                    .comment(
+                            "Whitelist of item ids (e.g. \"minecraft:diamond\").",
+                            "If not empty: ONLY whitelisted items are allowed. Blacklist is ignored.")
+                    .defineList("itemWhitelist",
+                            List.of(),
+                            o -> o instanceof String s && ResourceLocation.tryParse(s) != null
+                    );
+
 
             effectBlacklist = builder
                     .translation("randomizer.common.content.effectBlacklist")

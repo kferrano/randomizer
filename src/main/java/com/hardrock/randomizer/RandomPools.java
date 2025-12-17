@@ -21,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.entity.monster.warden.Warden;
 
 
 import java.util.ArrayList;
@@ -72,6 +73,7 @@ public class RandomPools {
         initMobsFromRegistry();
         initItemsFromRegistry();
 
+        /*
         mobs.add(new MobEntry(
                 ResourceLocation.parse("minecraft:warden"),
                 5,
@@ -80,20 +82,64 @@ public class RandomPools {
                 MobEntry.MobType.HOSTILE,
                 RarityTier.EXTREME
         ));
+        */
+    }
+
+    private static boolean isAllowed(ResourceLocation id, Set<ResourceLocation> whitelist, Set<ResourceLocation> blacklist) {
+        if (!whitelist.isEmpty()) {
+            return whitelist.contains(id);
+        }
+        return !blacklist.contains(id);
+    }
+
+    private static Set<ResourceLocation> buildValidatedIdSet(
+            List<? extends String> raw,
+            Set<ResourceLocation> registryIds,
+            String label
+    ) {
+        Set<ResourceLocation> out = new java.util.HashSet<>();
+        for (String s : raw) {
+            if (s == null || s.isBlank()) continue;
+
+            ResourceLocation rl = ResourceLocation.tryParse(s);
+            if (rl == null) {
+                Randomizer.LOGGER.warn("[Randomizer] Invalid {} id '{}' (not a valid ResourceLocation). Ignoring.", label, s);
+                continue;
+            }
+
+            if (!registryIds.contains(rl)) {
+                Randomizer.LOGGER.warn("[Randomizer] Unknown {} id '{}' (not registered). Ignoring.", label, s);
+                continue;
+            }
+
+            out.add(rl);
+        }
+        return java.util.Set.copyOf(out);
     }
 
     private void initEffectsFromRegistry() {
         boolean onlyVanilla = RandomizerConfig.COMMON.onlyVanillaEffects.get();
-        Set<String> blacklist = Set.copyOf(RandomizerConfig.COMMON.effectBlacklist.get());
+        Set<ResourceLocation> effectRegistry = BuiltInRegistries.MOB_EFFECT.keySet();
+
+        Set<ResourceLocation> whitelist = buildValidatedIdSet(
+                RandomizerConfig.COMMON.effectWhitelist.get(),
+                effectRegistry,
+                "effectWhitelist"
+        );
+
+        Set<ResourceLocation> blacklist = buildValidatedIdSet(
+                RandomizerConfig.COMMON.effectBlacklist.get(),
+                effectRegistry,
+                "effectBlacklist"
+        );
 
         int maxBuffAmp = RandomizerConfig.COMMON.maxBuffAmplifier.get();
         int maxDebuffAmp = RandomizerConfig.COMMON.maxDebuffAmplifier.get();
 
         for (ResourceLocation id : BuiltInRegistries.MOB_EFFECT.keySet()) {
-            String idString = id.toString();
 
             if (onlyVanilla && !id.getNamespace().equals("minecraft")) continue;
-            if (blacklist.contains(idString)) continue;
+            if (!isAllowed(id, whitelist, blacklist)) continue;
 
             var optHolder = BuiltInRegistries.MOB_EFFECT.get(id);
             if (optHolder.isEmpty()) continue;
@@ -108,13 +154,22 @@ public class RandomPools {
             int maxAmplifier = beneficial ? maxBuffAmp : maxDebuffAmp;
             int weight = beneficial ? 5 : 4;
 
+            RarityTier tier;
+            if (beneficial) {
+                tier = RarityTier.COMMON;
+            } else {
+                // debuffs grundsätzlich seltener
+                tier = (maxDebuffAmp >= 2) ? RarityTier.EXTREME : RarityTier.RARE;
+            }
+
+
             effects.add(new EffectEntry(
                     id,
                     maxAmplifier,
                     baseDuration,
                     weight,
                     beneficial ? EffectEntry.EffectType.BUFF : EffectEntry.EffectType.DEBUFF,
-                    RarityTier.EXTREME
+                    tier
             ));
         }
     }
@@ -123,13 +178,24 @@ public class RandomPools {
         boolean onlyVanilla = RandomizerConfig.COMMON.onlyVanillaMobs.get();
         boolean allowHostile = RandomizerConfig.COMMON.enableHostileMobs.get();
         boolean allowPassive = RandomizerConfig.COMMON.enablePassiveMobs.get();
-        Set<String> blacklist = Set.copyOf(RandomizerConfig.COMMON.mobBlacklist.get());
+        Set<ResourceLocation> mobRegistry = BuiltInRegistries.ENTITY_TYPE.keySet();
+
+        Set<ResourceLocation> whitelist = buildValidatedIdSet(
+                RandomizerConfig.COMMON.mobWhitelist.get(),
+                mobRegistry,
+                "mobWhitelist"
+        );
+
+        Set<ResourceLocation> blacklist = buildValidatedIdSet(
+                RandomizerConfig.COMMON.mobBlacklist.get(),
+                mobRegistry,
+                "mobBlacklist"
+        );
 
         for (ResourceLocation id : BuiltInRegistries.ENTITY_TYPE.keySet()) {
-            String idString = id.toString();
 
             if (onlyVanilla && !id.getNamespace().equals("minecraft")) continue;
-            if (blacklist.contains(idString)) continue;
+            if (!isAllowed(id, whitelist, blacklist)) continue;
 
             var optTypeHolder = BuiltInRegistries.ENTITY_TYPE.get(id);
             if (optTypeHolder.isEmpty()) continue;
@@ -141,7 +207,11 @@ public class RandomPools {
             if (cat == MobCategory.MISC) continue;
 
             boolean isHostile = (cat == MobCategory.MONSTER);
-
+            boolean isBossLike = id.getNamespace().equals("minecraft") && (
+                    id.getPath().equals("wither")
+                            || id.getPath().equals("ender_dragon")
+                            || id.getPath().equals("warden")
+            );
             if (isHostile && !allowHostile) continue;
             if (!isHostile && !allowPassive) continue;
 
@@ -149,14 +219,16 @@ public class RandomPools {
                     ? MobEntry.MobType.HOSTILE
                     : MobEntry.MobType.PASSIVE;
 
-            int count = isHostile
+            int count = isBossLike ? 1 : (isHostile
                     ? RandomizerConfig.COMMON.baseHostileMobCount.get()
-                    : RandomizerConfig.COMMON.basePassiveMobCount.get();
+                    : RandomizerConfig.COMMON.basePassiveMobCount.get());
             int radius = isHostile
                     ? RandomizerConfig.COMMON.baseHostileRadius.get()
                     : RandomizerConfig.COMMON.basePassiveRadius.get();
             int weight = isHostile ? 4 : 2;
-            RarityTier tier = isHostile ? RarityTier.RARE : RarityTier.COMMON;
+            RarityTier tier = isBossLike
+                    ? RarityTier.EXTREME
+                    : (isHostile ? RarityTier.RARE : RarityTier.COMMON);
 
             mobs.add(new MobEntry(
                     id,
@@ -169,15 +241,46 @@ public class RandomPools {
         }
     }
 
+    private static RarityTier determineItemTier(ResourceLocation id, Item item) {
+        int maxStack = item.getDefaultMaxStackSize();
+
+        if (id.getNamespace().equals("minecraft") && (
+                id.getPath().equals("nether_star")
+                        || id.getPath().equals("elytra")
+                        || id.getPath().equals("dragon_egg")
+                        || id.getPath().equals("totem_of_undying")
+        )) {
+            return RarityTier.EXTREME;
+        }
+
+        if (maxStack == 1) {
+            return RarityTier.RARE;
+        }
+
+        return RarityTier.COMMON;
+    }
+
+
     private void initItemsFromRegistry() {
         boolean onlyVanilla = RandomizerConfig.COMMON.onlyVanillaItems.get();
-        Set<String> blacklist = Set.copyOf(RandomizerConfig.COMMON.itemBlacklist.get());
+        Set<ResourceLocation> itemRegistry = BuiltInRegistries.ITEM.keySet();
+
+        Set<ResourceLocation> whitelist = buildValidatedIdSet(
+                RandomizerConfig.COMMON.itemWhitelist.get(),
+                itemRegistry,
+                "itemWhitelist"
+        );
+
+        Set<ResourceLocation> blacklist = buildValidatedIdSet(
+                RandomizerConfig.COMMON.itemBlacklist.get(),
+                itemRegistry,
+                "itemBlacklist"
+        );
 
         for (ResourceLocation id : BuiltInRegistries.ITEM.keySet()) {
-            String idString = id.toString();
 
             if (onlyVanilla && !id.getNamespace().equals("minecraft")) continue;
-            if (blacklist.contains(idString)) continue;
+            if (!isAllowed(id, whitelist, blacklist)) continue;
 
             var optItemHolder = BuiltInRegistries.ITEM.get(id);
             if (optItemHolder.isEmpty()) continue;
@@ -199,11 +302,14 @@ public class RandomPools {
 
             int weight = 3;
 
+            // Tier-Zuordnung (wichtig!)
+            RarityTier tier = determineItemTier(id, item);
+
             items.add(new ItemEntry(
                     id,
                     count,
                     weight,
-                    RarityTier.EXTREME
+                    tier
 
             ));
         }
@@ -240,7 +346,6 @@ public class RandomPools {
 
         return null;
     }
-
 
 
     // =====================================================================================
@@ -352,7 +457,7 @@ public class RandomPools {
         return RarityTier.EXTREME;
     }
 
-   public String spawnRandomMob(ServerPlayer player, Random random) {
+    public String spawnRandomMob(ServerPlayer player, Random random) {
         ensureInitialized();
 
         if (mobs.isEmpty()) return null;
@@ -422,11 +527,10 @@ public class RandomPools {
             }
 
             // (Optional) Warden persistent machen – wenn du ihn nicht default blacklistest
-        /*
-        if (mob instanceof Warden warden) {
-            warden.setPersistenceRequired();
-        }
-        */
+            if (mob instanceof Warden warden) {
+                warden.setPersistenceRequired();
+                warden.increaseAngerAt(player, 150, true);
+            }
 
             level.addFreshEntity(mob);
             spawned++;

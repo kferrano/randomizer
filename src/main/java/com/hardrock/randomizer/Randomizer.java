@@ -32,7 +32,7 @@ import java.util.Collection;
 public class Randomizer {
 
     public static final String MOD_ID = "randomizer";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     public static RandomizerManager MANAGER;
     private static final String CONFIG_DIR = "randomizer";
 
