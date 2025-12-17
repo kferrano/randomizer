@@ -28,8 +28,12 @@ public class RandomizerConfig {
 
         // Delay
         public final ModConfigSpec.IntValue delaySeconds;
+
+        // Display
         public final ModConfigSpec.BooleanValue enableBossbar;
         public final ModConfigSpec.BooleanValue showHudWithBossbar;
+        public final ModConfigSpec.BooleanValue showTargetedActionbar;
+
 
 
         // Event-Typen
@@ -310,6 +314,12 @@ public class RandomizerConfig {
                     .translation("randomizer.config.display.showHudWithBossbar")
                     .comment("If true, HUD timer text is shown together with the boss bar. If false, only the boss bar is used.")
                     .define("showHudWithBossbar", true);
+
+            showTargetedActionbar = builder
+                    .translation("randomizer.config.display.showTargetedActionbar")
+                    .comment("If true, targeted players receive a short actionbar notice when an event triggers.")
+                    .define("showTargetedActionbar", true);
+
 
             builder.pop();
 

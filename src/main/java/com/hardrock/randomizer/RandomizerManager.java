@@ -6,15 +6,10 @@ import net.minecraft.server.level.ServerPlayer;
 import com.mojang.logging.LogUtils;
 import net.minecraft.util.Mth;
 import org.slf4j.Logger;
-import com.hardrock.randomizer.network.RandomizerNetwork;
 import net.minecraft.world.BossEvent;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.MinecraftServer;
-
-
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -159,6 +154,62 @@ public class RandomizerManager {
                 .withStyle(ChatFormatting.GOLD);
     }
 
+    private void sendTargetingFeedback(List<ServerPlayer> players,
+                                       ServerPlayer target,
+                                       RandomPools.EventType type,
+                                       String text,
+                                       boolean manual) {
+
+        Component icon = switch (type) {
+            case ITEM -> Component.literal("[Item] ").withStyle(ChatFormatting.GOLD);
+            case EFFECT -> Component.literal("[Effect] ").withStyle(ChatFormatting.LIGHT_PURPLE);
+            case MOB -> Component.literal("[Mob] ").withStyle(ChatFormatting.RED);
+            default -> Component.empty();
+        };
+
+        Component manualTag = manual
+                ? Component.literal("[Manual] ").withStyle(ChatFormatting.GRAY)
+                : Component.empty();
+
+        // Message für Target: "You ..."
+        Component targetMsg = Component.empty()
+                .append(Randomizer.randomizerPrefix())
+                .append(manualTag)
+                .append(Component.literal("[Targeted] ").withStyle(ChatFormatting.YELLOW))
+                .append(icon)
+                .append(Component.literal("You "))
+                .append(Component.literal(text));
+
+        // Message für alle anderen: "Player <name> ..."
+        Component broadcastMsg = Component.empty()
+                .append(Randomizer.randomizerPrefix())
+                .append(manualTag)
+                .append(icon)
+                .append(Component.literal("Player "))
+                .append(target.getDisplayName().copy().withStyle(ChatFormatting.AQUA))
+                .append(Component.literal(" "))
+                .append(Component.literal(text));
+
+        // Optional Actionbar nur für Target
+        if (RandomizerConfig.COMMON.showTargetedActionbar.get()) {
+            // true = actionbar
+            target.displayClientMessage(
+                    Component.literal("You are targeted by the Randomizer!").withStyle(ChatFormatting.YELLOW),
+                    true
+            );
+        }
+
+        // Chat: Target bekommt targetMsg, alle anderen broadcastMsg
+        for (ServerPlayer p : players) {
+            if (p.getUUID().equals(target.getUUID())) {
+                p.sendSystemMessage(targetMsg);
+            } else {
+                p.sendSystemMessage(broadcastMsg);
+            }
+        }
+    }
+
+
 
     public void onServerTick(MinecraftServer server) {
 
@@ -238,24 +289,7 @@ public class RandomizerManager {
         if (resultText == null || resultText.isEmpty()) return;
         final String text = resultText;
 
-        Component icon = switch (type) {
-            case ITEM -> Component.literal("[Item] ").withStyle(ChatFormatting.GOLD);
-            case EFFECT -> Component.literal("[Effect] ").withStyle(ChatFormatting.LIGHT_PURPLE);
-            case MOB -> Component.literal("[Mob] ").withStyle(ChatFormatting.RED);
-            default -> Component.empty();
-        };
-
-        Component msg = Component.empty()
-                .append(Randomizer.randomizerPrefix())
-                .append(icon)
-                .append(Component.literal("Player "))
-                .append(target.getDisplayName().copy().withStyle(ChatFormatting.AQUA))
-                .append(Component.literal(" "))
-                .append(Component.literal(text));
-
-        for (ServerPlayer p : players) {
-            p.sendSystemMessage(msg);
-        }
+        sendTargetingFeedback(players, target, type, text, false);
 
         LOGGER.info(
                 "Randomizer event triggered: type={}, player={}, info={}",
@@ -304,25 +338,8 @@ public class RandomizerManager {
 
         final String text = resultText;
 
-        Component icon = switch (type) {
-            case ITEM -> Component.literal("[Item] ").withStyle(ChatFormatting.GOLD);
-            case EFFECT -> Component.literal("[Effect] ").withStyle(ChatFormatting.LIGHT_PURPLE);
-            case MOB -> Component.literal("[Mob] ").withStyle(ChatFormatting.RED);
-            default -> Component.empty();
-        };
+        sendTargetingFeedback(players, target, type, text, true);
 
-        Component msg = Component.empty()
-                .append(Randomizer.randomizerPrefix())
-                .append(Component.literal("[Manual] ").withStyle(ChatFormatting.GRAY))
-                .append(icon)
-                .append(Component.literal("Player "))
-                .append(target.getDisplayName().copy().withStyle(ChatFormatting.AQUA))
-                .append(Component.literal(" "))
-                .append(Component.literal(text));
-
-        for (ServerPlayer p : players) {
-            p.sendSystemMessage(msg);
-        }
 
         LOGGER.info(
                 "Manual randomizer event: type={}, target={}, info={}",
