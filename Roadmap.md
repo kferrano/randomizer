@@ -29,6 +29,24 @@ ChatGPT uses this file for context and future planning.)*
 
 ---
 
+## 🛣️ Planned (v0.6.0)
+
+### Event & Multiplayer Control
+- Further stabilization of Tick → Event → Sync pipeline
+- Improved multiplayer safety for event targeting
+- Handling edge cases for player join/leave during events
+
+### Admin & Event Control
+- Granular enable/disable options for event types (items / mobs / effects)
+- Optional global or per-player event cooldowns
+- Extended manual command safety for admins
+
+### Performance & Stability
+- Additional tick optimizations where required
+- Cleanup of remaining edge cases from 0.5.x
+
+
+---
 # 🎯 Roadmap to 1.0.0 – Core Feature Completion (High Priority)
 
 ## 1. Event System Polish
