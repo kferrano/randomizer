@@ -1,0 +1,20 @@
+name: ❓ Question / Support
+description: Ask a question about usage or configuration
+title: "[Question]: "
+labels: ["question"]
+assignees: []
+
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: Ask your question clearly and with context
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Config snippets, screenshots, logs, etc.
