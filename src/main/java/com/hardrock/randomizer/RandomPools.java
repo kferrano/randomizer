@@ -4,6 +4,7 @@ import com.hardrock.randomizer.data.EffectEntry;
 import com.hardrock.randomizer.data.ItemEntry;
 import com.hardrock.randomizer.data.MobEntry;
 import com.hardrock.randomizer.data.RarityTier;
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,6 +23,7 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.entity.monster.warden.Warden;
+import org.slf4j.Logger;
 
 
 import java.util.ArrayList;
@@ -40,6 +42,7 @@ public class RandomPools {
     private final List<EffectEntry> effects = new ArrayList<>();
     private final List<MobEntry> mobs = new ArrayList<>();
     private final List<ItemEntry> items = new ArrayList<>();
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private boolean enabled = true;
     private boolean initialized = false;
@@ -103,12 +106,12 @@ public class RandomPools {
 
             ResourceLocation rl = ResourceLocation.tryParse(s);
             if (rl == null) {
-                Randomizer.LOGGER.warn("[Randomizer] Invalid {} id '{}' (not a valid ResourceLocation). Ignoring.", label, s);
+                LOGGER.warn("[Randomizer] Invalid {} id '{}' (not a valid ResourceLocation). Ignoring.", label, s);
                 continue;
             }
 
             if (!registryIds.contains(rl)) {
-                Randomizer.LOGGER.warn("[Randomizer] Unknown {} id '{}' (not registered). Ignoring.", label, s);
+                LOGGER.warn("[Randomizer] Unknown {} id '{}' (not registered). Ignoring.", label, s);
                 continue;
             }
 
