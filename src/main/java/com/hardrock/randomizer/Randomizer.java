@@ -34,7 +34,7 @@ public class Randomizer {
     public static final String MOD_ID = "randomizer";
     private static final Logger LOGGER = LogUtils.getLogger();
     public static RandomizerManager MANAGER;
-
+    private static final String CONFIG_DIR = "randomizer";
 
     public Randomizer(IEventBus modEventBus, ModContainer modContainer) {
         RandomizerManager manager = RandomizerManager.INSTANCE;
@@ -42,8 +42,8 @@ public class Randomizer {
 
         LOGGER.info("Randomizer mod initializing.");
         NeoForge.EVENT_BUS.addListener(this::onServerTick);
-        modContainer.registerConfig(ModConfig.Type.COMMON, RandomizerConfig.COMMON_SPEC);
-        modContainer.registerConfig(ModConfig.Type.CLIENT, RandomizerConfig.CLIENT_SPEC);
+        modContainer.registerConfig(ModConfig.Type.COMMON, RandomizerConfig.COMMON_SPEC, CONFIG_DIR + "/common.toml");
+        modContainer.registerConfig(ModConfig.Type.CLIENT, RandomizerConfig.CLIENT_SPEC, CONFIG_DIR + "/client.toml");
         NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
         NeoForge.EVENT_BUS.addListener(this::onPlayerLogin);
     }
