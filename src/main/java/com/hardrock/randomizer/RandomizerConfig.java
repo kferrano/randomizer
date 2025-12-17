@@ -36,9 +36,6 @@ public class RandomizerConfig {
         public final ModConfigSpec.BooleanValue broadcastEventsToAll;
         public final ModConfigSpec.BooleanValue broadcastToOpsOnly;
 
-
-
-
         // Event-Typen
         public final ModConfigSpec.BooleanValue enableEffects;
         public final ModConfigSpec.BooleanValue enableMobs;
@@ -62,7 +59,6 @@ public class RandomizerConfig {
         public final ModConfigSpec.IntValue mobTierCommon;
         public final ModConfigSpec.IntValue mobTierRare;
         public final ModConfigSpec.IntValue mobTierExtreme;
-
 
         // --- Balancing / Filter ---
 
@@ -100,11 +96,9 @@ public class RandomizerConfig {
         public final ModConfigSpec.IntValue baseHostileRadius;
         public final ModConfigSpec.IntValue basePassiveRadius;
 
-
         // Admin-Modus
         public final ModConfigSpec.BooleanValue allowManualWhenStopped;
         public final ModConfigSpec.BooleanValue enableDebugLogging;
-
 
         public Common(ModConfigSpec.Builder builder) {
 
@@ -117,39 +111,37 @@ public class RandomizerConfig {
                     .push("general");
 
             delaySeconds = builder
-
-                    .translation("randomizer.common.general.delaySeconds")
-
+                    .translation("randomizer.config.general.delaySeconds")
                     .comment("Delay in seconds between random events.")
                     .defineInRange("delaySeconds", 60, 5, 3600);
 
             enableEffects = builder
-                    .translation("randomizer.common.general.enableEffects")
+                    .translation("randomizer.config.general.enableEffects")
                     .comment("Allow effect events.")
                     .define("enableEffects", true);
 
             enableMobs = builder
-                    .translation("randomizer.common.general.enableMobs")
+                    .translation("randomizer.config.general.enableMobs")
                     .comment("Allow mob spawn events.")
                     .define("enableMobs", true);
 
             enableItems = builder
-                    .translation("randomizer.common.general.enableItems")
+                    .translation("randomizer.config.general.enableItems")
                     .comment("Allow item reward events.")
                     .define("enableItems", true);
 
             weightEffects = builder
-                    .translation("randomizer.common.general.weightEffects")
+                    .translation("randomizer.config.general.weightEffects")
                     .comment("Relative weight of effect events.")
                     .defineInRange("weightEffects", 5, 0, 100);
 
             weightMobs = builder
-                    .translation("randomizer.common.general.weightMobs")
+                    .translation("randomizer.config.general.weightMobs")
                     .comment("Relative weight of mob events.")
                     .defineInRange("weightMobs", 3, 0, 100);
 
             weightItems = builder
-                    .translation("randomizer.common.general.weightItems")
+                    .translation("randomizer.config.general.weightItems")
                     .comment("Relative weight of item events.")
                     .defineInRange("weightItems", 2, 0, 100);
 
@@ -165,32 +157,32 @@ public class RandomizerConfig {
                     .push("content");
 
             onlyVanillaEffects = builder
-                    .translation("randomizer.common.content.onlyVanillaEffects")
+                    .translation("randomizer.config.content.onlyVanillaEffects")
                     .comment("If true, only effects from minecraft namespace are used.")
                     .define("onlyVanillaEffects", true);
 
             onlyVanillaMobs = builder
-                    .translation("randomizer.common.content.onlyVanillaMobs")
+                    .translation("randomizer.config.content.onlyVanillaMobs")
                     .comment("If true, only mobs from minecraft namespace are used.")
                     .define("onlyVanillaMobs", true);
 
             onlyVanillaItems = builder
-                    .translation("randomizer.common.content.onlyVanillaItems")
+                    .translation("randomizer.config.content.onlyVanillaItems")
                     .comment("If true, only items from minecraft namespace are used.")
                     .define("onlyVanillaItems", true);
 
             enableHostileMobs = builder
-                    .translation("randomizer.common.content.enableHostileMobs")
+                    .translation("randomizer.config.content.enableHostileMobs")
                     .comment("Allow hostile mobs (MobCategory.MONSTER).")
                     .define("enableHostileMobs", true);
 
             enablePassiveMobs = builder
-                    .translation("randomizer.common.content.enablePassiveMobs")
+                    .translation("randomizer.config.content.enablePassiveMobs")
                     .comment("Allow non-hostile mobs (animals etc.).")
                     .define("enablePassiveMobs", true);
 
             effectWhitelist = builder
-                    .translation("randomizer.common.content.effectWhitelist")
+                    .translation("randomizer.config.content.effectWhitelist")
                     .comment(
                             "Whitelist of effect ids (e.g. \"minecraft:speed\").",
                             "If not empty: ONLY whitelisted effects are allowed. Blacklist is ignored.")
@@ -200,7 +192,7 @@ public class RandomizerConfig {
                     );
 
             mobWhitelist = builder
-                    .translation("randomizer.common.content.mobWhitelist")
+                    .translation("randomizer.config.content.mobWhitelist")
                     .comment(
                             "Whitelist of mob ids (e.g. \"minecraft:zombie\").",
                             "If not empty: ONLY whitelisted mobs are allowed. Blacklist is ignored.")
@@ -210,7 +202,7 @@ public class RandomizerConfig {
                     );
 
             itemWhitelist = builder
-                    .translation("randomizer.common.content.itemWhitelist")
+                    .translation("randomizer.config.content.itemWhitelist")
                     .comment(
                             "Whitelist of item ids (e.g. \"minecraft:diamond\").",
                             "If not empty: ONLY whitelisted items are allowed. Blacklist is ignored.")
@@ -221,25 +213,28 @@ public class RandomizerConfig {
 
 
             effectBlacklist = builder
-                    .translation("randomizer.common.content.effectBlacklist")
+                    .translation("randomizer.config.content.effectBlacklist")
                     .comment("Blacklist of effect ids (e.g. \"minecraft:instant_damage\").")
                     .defineList("effectBlacklist",
                             List.of("minecraft:instant_damage"),
-                            o -> o instanceof String);
+                            o -> o instanceof String s && ResourceLocation.tryParse(s) != null
+                    );
 
             mobBlacklist = builder
-                    .translation("randomizer.common.content.mobBlacklist")
+                    .translation("randomizer.config.content.mobBlacklist")
                     .comment("Blacklist of mob ids (e.g. \"minecraft:wither\", \"minecraft:ender_dragon\").")
                     .defineList("mobBlacklist",
                             List.of("minecraft:wither", "minecraft:ender_dragon", "minecraft:giant"),
-                            o -> o instanceof String);
+                            o -> o instanceof String s && ResourceLocation.tryParse(s) != null
+                    );
 
             itemBlacklist = builder
-                    .translation("randomizer.common.content.itemBlacklist")
+                    .translation("randomizer.config.content.itemBlacklist")
                     .comment("Blacklist of item ids (e.g. \"minecraft:barrier\").")
                     .defineList("itemBlacklist",
                             List.of("minecraft:barrier"),
-                            o -> o instanceof String);
+                            o -> o instanceof String s && ResourceLocation.tryParse(s) != null
+                    );
 
             builder.pop();
 
@@ -253,22 +248,22 @@ public class RandomizerConfig {
                     .push("effects");
 
             durationMinFactor = builder
-                    .translation("randomizer.common.effects.durationMinFactor")
+                    .translation("randomizer.config.effects.durationMinFactor")
                     .comment("Minimum factor for effect duration relative to baseDuration.")
                     .defineInRange("durationMinFactor", 0.5d, 0.1d, 10.0d);
 
             durationMaxFactor = builder
-                    .translation("randomizer.common.effects.durationMaxFactor")
+                    .translation("randomizer.config.effects.durationMaxFactor")
                     .comment("Maximum factor for effect duration relative to baseDuration.")
                     .defineInRange("durationMaxFactor", 2.0d, 0.1d, 20.0d);
 
             maxBuffAmplifier = builder
-                    .translation("randomizer.common.effects.maxBuffAmplifier")
+                    .translation("randomizer.config.effects.maxBuffAmplifier")
                     .comment("Maximum amplifier for beneficial effects (0 = level I, 1 = level II, ...).")
                     .defineInRange("maxBuffAmplifier", 3, 0, 10);
 
             maxDebuffAmplifier = builder
-                    .translation("randomizer.common.effects.maxDebuffAmplifier")
+                    .translation("randomizer.config.effects.maxDebuffAmplifier")
                     .comment("Maximum amplifier for harmful effects.")
                     .defineInRange("maxDebuffAmplifier", 2, 0, 10);
 
@@ -284,22 +279,22 @@ public class RandomizerConfig {
                     .push("mobs");
 
             baseHostileMobCount = builder
-                    .translation("randomizer.common.mobs.baseHostileMobCount")
+                    .translation("randomizer.config.mobs.baseHostileMobCount")
                     .comment("Base number of hostile mobs spawned per event.")
                     .defineInRange("baseHostileMobCount", 3, 1, 20);
 
             basePassiveMobCount = builder
-                    .translation("randomizer.common.mobs.basePassiveMobCount")
+                    .translation("randomizer.config.mobs.basePassiveMobCount")
                     .comment("Base number of passive mobs spawned per event.")
                     .defineInRange("basePassiveMobCount", 2, 1, 20);
 
             baseHostileRadius = builder
-                    .translation("randomizer.common.mobs.baseHostileRadius")
+                    .translation("randomizer.config.mobs.baseHostileRadius")
                     .comment("Base radius for hostile mob spawns around player.")
                     .defineInRange("baseHostileRadius", 6, 1, 64);
 
             basePassiveRadius = builder
-                    .translation("randomizer.common.mobs.basePassiveRadius")
+                    .translation("randomizer.config.mobs.basePassiveRadius")
                     .comment("Base radius for passive mob spawns around player.")
                     .defineInRange("basePassiveRadius", 5, 1, 64);
 
@@ -350,26 +345,98 @@ public class RandomizerConfig {
 
             builder.push("tiers");
 
-// ---------- ITEM TIERS ----------
+        // ---------- ITEM TIERS ----------
             builder.push("items");
-            itemTierCommon = builder.defineInRange("common", 70, 0, 1000);
-            itemTierRare = builder.defineInRange("rare", 25, 0, 1000);
-            itemTierExtreme = builder.defineInRange("extreme", 5, 0, 1000);
+
+            itemTierCommon = builder
+                    .translation("randomizer.config.tiers.items.common")
+                    .comment(
+                            "Relative chance for COMMON items within the item pool.",
+                            "Higher values make common items more likely.",
+                            "If set to 0, common items will never be selected."
+                    )
+                    .defineInRange("common", 70, 0, 1000);
+
+            itemTierRare = builder
+                    .translation("randomizer.config.tiers.items.rare")
+                    .comment(
+                            "Relative chance for RARE items within the item pool.",
+                            "Higher values increase the chance of rare items.",
+                            "If set to 0, rare items will never be selected."
+                    )
+                    .defineInRange("rare", 25, 0, 1000);
+
+            itemTierExtreme = builder
+                    .translation("randomizer.config.tiers.items.extreme")
+                    .comment(
+                            "Relative chance for EXTREME items within the item pool.",
+                            "Extreme items are powerful or special rewards.",
+                            "If set to 0, extreme items will never be selected."
+                    )
+                    .defineInRange("extreme", 5, 0, 1000);
+
             builder.pop();
 
-// ---------- EFFECT TIERS ----------
+        // ---------- EFFECT TIERS ----------
             builder.push("effects");
-            effectTierCommon = builder.defineInRange("common", 65, 0, 1000);
-            effectTierRare = builder.defineInRange("rare", 30, 0, 1000);
-            effectTierExtreme = builder.defineInRange("extreme", 5, 0, 1000);
+
+            effectTierCommon = builder
+                    .translation("randomizer.config.tiers.effects.common")
+                    .comment(
+                            "Relative chance for COMMON effects.",
+                            "Common effects are usually mild or beneficial."
+                    )
+                    .defineInRange("common", 65, 0, 1000);
+
+            effectTierRare = builder
+                    .translation("randomizer.config.tiers.effects.rare")
+                    .comment(
+                            "Relative chance for RARE effects.",
+                            "Rare effects are stronger or more impactful."
+                    )
+                    .defineInRange("rare", 30, 0, 1000);
+
+            effectTierExtreme = builder
+                    .translation("randomizer.config.tiers.effects.extreme")
+                    .comment(
+                            "Relative chance for EXTREME effects.",
+                            "Extreme effects can be very strong or dangerous."
+                    )
+                    .defineInRange("extreme", 5, 0, 1000);
+
             builder.pop();
 
-// ---------- MOB TIERS ----------
+
+        // ---------- MOB TIERS ----------
             builder.push("mobs");
-            mobTierCommon = builder.defineInRange("common", 60, 0, 1000);
-            mobTierRare = builder.defineInRange("rare", 30, 0, 1000);
-            mobTierExtreme = builder.defineInRange("extreme", 10, 0, 1000);
+
+            mobTierCommon = builder
+                    .translation("randomizer.config.tiers.mobs.common")
+                    .comment(
+                            "Relative chance for COMMON mobs.",
+                            "Usually passive or low-threat mobs."
+                    )
+                    .defineInRange("common", 60, 0, 1000);
+
+            mobTierRare = builder
+                    .translation("randomizer.config.tiers.mobs.rare")
+                    .comment(
+                            "Relative chance for RARE mobs.",
+                            "Typically hostile or stronger mobs."
+                    )
+                    .defineInRange("rare", 30, 0, 1000);
+
+            mobTierExtreme = builder
+                    .translation("randomizer.config.tiers.mobs.extreme")
+                    .comment(
+                            "Relative chance for EXTREME mobs.",
+                            "Boss-like or very dangerous mobs.",
+                            "Boss mobs are always limited to a spawn count of 1."
+                    )
+                    .defineInRange("extreme", 10, 0, 1000);
+
             builder.pop();
+
 
             builder.pop(); // tiers
         }
@@ -378,7 +445,7 @@ public class RandomizerConfig {
 
     public static class Client {
 
-        public final ModConfigSpec.BooleanValue disableHud;
+        public final ModConfigSpec.BooleanValue disableTimer;
         public final ModConfigSpec.DoubleValue hudX;
         public final ModConfigSpec.DoubleValue hudY;
         public final ModConfigSpec.BooleanValue disableBossbar;
@@ -393,8 +460,8 @@ public class RandomizerConfig {
                     .translation("randomizer.config.hud.disableBossbar")
                     .comment("If true, the Randomizer Bossbar is completely disabled on this client. Needed Reconnect to be effective.")
                     .define("disableBossbar", false);
-            disableHud = builder
-                    .translation("randomizer.config.hud.disableHud")
+            disableTimer = builder
+                    .translation("randomizer.config.hud.disableTimer")
                     .comment("If true, the Randomizer HUD timer is completely disabled on this client.")
                     .define("disableTimer", false);
 
@@ -410,7 +477,5 @@ public class RandomizerConfig {
 
             builder.pop();
         }
-
-
     }
 }
