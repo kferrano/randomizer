@@ -15,7 +15,7 @@ body:
     attributes:
       value: |
         ⚠️ For general questions or setup help, please use our Discord:
-        https://discord.gg/YOUR_INVITE
+        https://discord.gg/mDRWjvzBK4
 
   - type: input
     id: mod_version
