@@ -4,19 +4,28 @@ ChatGPT uses this file for context and future planning.)*
 
 ---
 
-## ✅ Completed (up to v0.4.0)
-- Admin command `/randomizer manual` (self, target, selectors)
-- Bossbar per-client toggle (live, no reconnect needed)
-- HUD/Timer sync fixes on join/rejoin
-- Fixed elapsedTicks regression
-- Pillager weapon fix (finalizeSpawn + fallback)
-- Default blacklist entry: `minecraft:giant`
-- Removed duplicate old `onPlayerLogin` handler
-- Unified all systems under a single RandomizerManager instance
-- Config cleanup:
-    - `disableHud` → renamed to `disableTimer`
-    - Added `disableBossbar`
-    - Added lang entries for admin/bossbar/timer categories
+## ✅ Completed (up to v0.5.0)
+- Rarity-tier weighting per pool (Items, Mobs, Effects)
+- Deterministic selection chain: Category → Tier → Entry
+- Min/max mob spawn control with retry logic and fallback to Item/Effect
+- Warden spawn stabilization (persistence + initial aggro)
+- Removed default Warden pool entry; Warden handled via registry only (EXTREME tier, count = 1)
+- Improved targeting feedback:
+  - Separate messages for target (“You …”) and other players (“Player <name> …”)
+  - Optional actionbar feedback for targeted players
+  - Configurable broadcast rules (all / ops-only / disabled)
+  - Spam and double-trigger protection
+- Logging improvements:
+  - Structured INFO / WARN / ERROR output
+  - Configurable admin-only debug logging
+  - Debug output for pool selection, fallbacks, and retries
+- Config quality improvements:
+  - Unified translation key prefix (`config`)
+  - Added missing `en_us` translations
+  - Hardened blacklist validation
+  - Added clear descriptions for tier weights
+- Moved COMMON and CLIENT config files into a dedicated mod-specific config folder
+- Feature freeze applied for 0.5.0
 
 ---
 
