@@ -32,15 +32,15 @@ Items listed here may change during development and do not represent final featu
 
 ---
 
-## 3. Manual Event Command Improvements
+## 3. Manual Event Command Extensions
 
-- [ ] Extend `/randomizer manual` command:
-  - [ ] Target specific player
-  - [ ] Optional event type argument
-  - [ ] Optional forced tier (admin-only)
-- [ ] Add safety checks to prevent abuse
-- [ ] Ensure manual events respect config rules by default
-- [ ] Improve error messages for invalid command usage
+- [ ] Extend `/randomizer manual` with optional arguments:
+  - [ ] Force event type (item / mob / effect)
+  - [ ] Force rarity tier (admin-only)
+- [ ] Integrate manual events with cooldown system
+- [ ] Add admin-only bypass for cooldowns
+- [ ] Improve error feedback for invalid or blocked manual events
+
 
 ---
 
