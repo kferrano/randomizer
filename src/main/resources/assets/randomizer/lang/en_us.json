@@ -14,8 +14,8 @@
   "randomizer.config.category.hud": "HUD",
   "randomizer.config.category.hud.tooltip": "Randomizer timer HUD position and visibility.",
 
-  "randomizer.config.hud.disableTimer": "Disable Timer",
-  "randomizer.config.hud.disableTimer.tooltip": "If enabled, the Randomizer timer will not be displayed.",
+  "randomizer.config.hud.disableHud": "Disable Timer",
+  "randomizer.config.hud.disableHud.tooltip": "If enabled, the Randomizer timer will not be displayed.",
 
   "randomizer.config.hud.disableBossbar": "Disable Bossbar",
   "randomizer.config.hud.disableBossbar.tooltip": "If enabled, the boss bar will not be displayed.",
@@ -64,6 +64,7 @@
   "randomizer.config.general.weightMobs": "Weight: Mobs",
   "randomizer.config.general.weightMobs.tooltip": "Higher weight increases the chance for mob spawns.",
 
+
   "randomizer.config.content.onlyVanillaItems": "Only Vanilla Items",
   "randomizer.config.content.onlyVanillaItems.tooltip": "If enabled, only minecraft: items are used.",
 
@@ -103,29 +104,5 @@
   "randomizer.config.effects.maxBuffAmplifier.tooltip": "Maximum level for beneficial effects.",
 
   "randomizer.config.effects.maxDebuffAmplifier": "Max Debuff Amplifier",
-  "randomizer.config.effects.maxDebuffAmplifier.tooltip": "Maximum level for harmful effects.",
-
-  "randomizer.config.display.showTargetedActionbar": "Show targeted actionbar",
-  "randomizer.config.display.showTargetedActionbar.tooltip": "If enabled, targeted players receive a short actionbar notice.",
-
-  "randomizer.config.display.broadcastEventsToAll": "Broadcast events to all players",
-  "randomizer.config.display.broadcastEventsToAll.tooltip": "If enabled, non-target players also receive the event broadcast message.",
-
-  "randomizer.config.display.broadcastToOpsOnly": "Broadcast only to operators",
-  "randomizer.config.display.broadcastToOpsOnly.tooltip": "If enabled, broadcast messages are only sent to server operators (requires broadcast to all).",
-
-  "randomizer.config.logging.enableDebugLogging": "Enable debug logging",
-  "randomizer.config.logging.enableDebugLogging.tooltip": "If enabled, prints verbose debug logs for selection, fallbacks and retries.",
-
-  "randomizer.config.tiers.items.common": "Common item weight",
-  "randomizer.config.tiers.items.rare": "Rare item weight",
-  "randomizer.config.tiers.items.extreme": "Extreme item weight",
-
-  "randomizer.config.tiers.effects.common": "Common effect weight",
-  "randomizer.config.tiers.effects.rare": "Rare effect weight",
-  "randomizer.config.tiers.effects.extreme": "Extreme effect weight",
-
-  "randomizer.config.tiers.mobs.common": "Common mob weight",
-  "randomizer.config.tiers.mobs.rare": "Rare mob weight",
-  "randomizer.config.tiers.mobs.extreme": "Extreme mob weight"
+  "randomizer.config.effects.maxDebuffAmplifier.tooltip": "Maximum level for harmful effects."
 }

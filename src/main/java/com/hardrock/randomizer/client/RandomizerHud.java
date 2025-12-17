@@ -72,7 +72,7 @@ public class RandomizerHud {
     private static void render(GuiGraphics gfx, DeltaTracker delta) {
         Minecraft mc = Minecraft.getInstance();
 
-        if (RandomizerConfig.CLIENT.disableTimer.get()) {
+        if (RandomizerConfig.CLIENT.disableHud.get()) {
             return;
         }
 
