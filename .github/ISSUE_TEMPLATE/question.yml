@@ -5,16 +5,22 @@ labels: ["question"]
 assignees: []
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ **Support & Questions**
+        
+        For general questions, setup help, or balance discussions,
+        please join our Discord server:
+        
+        👉 **https://discord.gg/YOUR_INVITE**
+        
+        GitHub issues should mainly be used for bugs and feature tracking.
+
   - type: textarea
     id: question
     attributes:
       label: Your question
-      description: Ask your question clearly and with context
+      description: If this is not suitable for Discord, ask your question here.
     validations:
       required: true
-
-  - type: textarea
-    id: context
-    attributes:
-      label: Additional context
-      description: Config snippets, screenshots, logs, etc.
