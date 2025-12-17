@@ -11,12 +11,7 @@ import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.ChatFormatting;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class RandomizerManager {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -36,6 +31,8 @@ public class RandomizerManager {
     private long elapsedTicks = 0;
     private final ServerBossEvent bossBar;
     private final Set<UUID> bossbarHiddenPlayers = new HashSet<>();
+    private final Map<UUID, Long> lastFeedbackTick = new HashMap<>();
+
 
 
     public enum State {
@@ -158,7 +155,15 @@ public class RandomizerManager {
                                        ServerPlayer target,
                                        RandomPools.EventType type,
                                        String text,
-                                       boolean manual) {
+                                       boolean manual,
+                                       long gameTime) {
+
+        long now = gameTime; // oder Level#getGameTime aus deinem Kontext
+        Long last = lastFeedbackTick.get(target.getUUID());
+        if (last != null && (now - last) < 2) {
+            return;
+        }
+        lastFeedbackTick.put(target.getUUID(), now);
 
         Component icon = switch (type) {
             case ITEM -> Component.literal("[Item] ").withStyle(ChatFormatting.GOLD);
@@ -199,13 +204,20 @@ public class RandomizerManager {
             );
         }
 
+        boolean broadcastAll = RandomizerConfig.COMMON.broadcastEventsToAll.get();
+        boolean opsOnly = RandomizerConfig.COMMON.broadcastToOpsOnly.get();
+
         // Chat: Target bekommt targetMsg, alle anderen broadcastMsg
         for (ServerPlayer p : players) {
             if (p.getUUID().equals(target.getUUID())) {
                 p.sendSystemMessage(targetMsg);
-            } else {
-                p.sendSystemMessage(broadcastMsg);
+                continue;
             }
+
+            if (!broadcastAll) continue;
+
+            if (opsOnly && !p.hasPermissions(2)) continue; // Level 2 = OP
+            p.sendSystemMessage(broadcastMsg);
         }
     }
 
@@ -288,8 +300,9 @@ public class RandomizerManager {
 
         if (resultText == null || resultText.isEmpty()) return;
         final String text = resultText;
+        long gameTime = target.level().getGameTime();
 
-        sendTargetingFeedback(players, target, type, text, false);
+        sendTargetingFeedback(players, target, type, text, false, gameTime);
 
         LOGGER.info(
                 "Randomizer event triggered: type={}, player={}, info={}",
@@ -337,8 +350,9 @@ public class RandomizerManager {
         }
 
         final String text = resultText;
+        long gameTime = target.level().getGameTime();
 
-        sendTargetingFeedback(players, target, type, text, true);
+        sendTargetingFeedback(players, target, type, text, true, gameTime);
 
 
         LOGGER.info(

@@ -33,6 +33,9 @@ public class RandomizerConfig {
         public final ModConfigSpec.BooleanValue enableBossbar;
         public final ModConfigSpec.BooleanValue showHudWithBossbar;
         public final ModConfigSpec.BooleanValue showTargetedActionbar;
+        public final ModConfigSpec.BooleanValue broadcastEventsToAll;
+        public final ModConfigSpec.BooleanValue broadcastToOpsOnly;
+
 
 
 
@@ -320,6 +323,15 @@ public class RandomizerConfig {
                     .comment("If true, targeted players receive a short actionbar notice when an event triggers.")
                     .define("showTargetedActionbar", true);
 
+            broadcastEventsToAll = builder
+                    .translation("randomizer.config.display.broadcastEventsToAll")
+                    .comment("If true, non-target players also receive the event broadcast message.")
+                    .define("broadcastEventsToAll", true);
+
+            broadcastToOpsOnly = builder
+                    .translation("randomizer.config.display.broadcastToOpsOnly")
+                    .comment("If true, broadcast messages are only sent to server operators. Requires broadcastEventsToAll=true.")
+                    .define("broadcastToOpsOnly", false);
 
             builder.pop();
 
